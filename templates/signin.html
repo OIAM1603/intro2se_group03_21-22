@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Bilinguo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+</head>
+<body>
+    <header>
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bilinguo Logo" class="logo">
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('signin') }}">Sign in</a></li>
+                <li><a href="#">Notice</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="{{ url_for('signup') }}">Sign up</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main class="sign-in-main">
+        <section class="sign-in-section">
+            <h1>WELCOME TO BILINGUO</h1>
+            <form action="{{ url_for('signin') }}" method="post">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+                <a href="#" class="forgot-password">Forgot password?</a>
+                <button type="submit" class="sign-in-button">SIGN IN</button>
+            </form>
+            <p>Don’t have an account? <a href="{{ url_for('signup') }}">Sign up</a></p>
+        </section>
+    </main>
+</body>
+</html>
