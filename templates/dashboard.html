@@ -11,16 +11,17 @@
 <body>
     <header>
         <div class="logo-container">
-            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bilinguo Logo" class="logo">
+            <a href="{{ url_for('dashboard') }}">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bilinguo Logo" class="logo">
+            </a></li>
             <img src="{{ url_for('static', filename='images/notice.png') }}" alt="Notice Icon" class="notice">
         </div>
         <nav>
             <ul>
-                <li><a href="{{ url_for('dashboard') }}">Home page</a></li>
+                <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
                 <li><a href="{{ url_for('flashcards') }}">Flashcards</a></li>
                 <li><a href="{{ url_for('dictionary') }}">Dictionary</a></li>
                 <li><a href="#">Mock test</a></li>
-                <li><a href="#">Name Student</a></li>
             </ul>
         </nav>
         <img src="{{ url_for('static', filename='images/student.png') }}" alt="Student Icon" class="student">

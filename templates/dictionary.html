@@ -3,22 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dictionary - Bilinguo</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Dashboard - Bilinguo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/insight.css') }}">
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <header>
-        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bilinguo Logo" class="logo">
+        <div class="logo-container">
+            <a href="{{ url_for('dashboard') }}">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bilinguo Logo" class="logo">
+            </a></li>
+            <img src="{{ url_for('static', filename='images/notice.png') }}" alt="Notice Icon" class="notice">
+        </div>
         <nav>
             <ul>
-                <li><a href="{{ url_for('home') }}">Home</a></li>
-                <li><a href="{{ url_for('signin') }}">Sign in</a></li>
-                <li><a href="#">Notice</a></li>
-                <li><a href="#">About</a></li>
-                <li><a href="{{ url_for('signup') }}">Sign up</a></li>
+                <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                <li><a href="{{ url_for('flashcards') }}">Flashcards</a></li>
+                <li><a href="{{ url_for('dictionary') }}">Dictionary</a></li>
+                <li><a href="#">Mock test</a></li>
             </ul>
         </nav>
+        <img src="{{ url_for('static', filename='images/student.png') }}" alt="Student Icon" class="student">
     </header>
     <main class="dictionary-main">
         <section class="dictionary-section">
@@ -31,7 +37,7 @@
             {% if definition %}
                 <div class="definition-result">
                     <h2>Definition:</h2>
-                    <p>{{ definition }}</p>
+                    <pre>{{ definition }}</pre>
                 </div>
             {% endif %}
         </section>

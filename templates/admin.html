@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Bilinguo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/insight.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bilinguo Logo" class="logo">
+        </div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('admin_dashboard') }}">Home page</a></li>
+                <li><a href="{{ url_for('admin_view_account') }}">View account</a></li>
+                <li><a href="{{ url_for('admin_report') }}">Report</a></li>
+                <li><a href="{{ url_for('admin_create_account') }}">Create account</a></li>
+            </ul>
+        </nav>
+        <img src="{{ url_for('static', filename='images/admin.png') }}" alt="Admin Icon" class="admin">
+    </header>
+    <main>
+        <section class="dashboard">
+            <h1>Admin Dashboard</h1>
+            <p id="admin-name">Admin: {{ admin_name }}</p>
+            <p id="current-time"></p>
+            
+            <div class="statistics">
+                <h2>Number of visits</h2>
+                <div class="chart">
+                    <canvas id="visitChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="activities">
+                <h2>Recent activities</h2>
+                <ul>
+                    <!-- Replace with dynamic activities -->
+                    <li>User X signed up</li>
+                    <li>User Y completed a test</li>
+                    <li>Admin created a new announcement</li>
+                </ul>
+            </div>
+            
+            <div class="notifications">
+                <h2>Create Notification</h2>
+                <form action="{{ url_for('admin_create_notification') }}" method="post" enctype="multipart/form-data">
+                    <textarea name="notification_text" rows="4" placeholder="Enter your notification"></textarea>
+                    <input type="file" name="attachment">
+                    <button type="submit">Send</button>
+                </form>
+            </div>
+        </section>
+    </main>
+    <script>
+        const ctx = document.getElementById('visitChart').getContext('2d');
+        const visitChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Number of visits',
+                    data: [2, 7, 15, 3, 5, 1, 0],
+                    backgroundColor: 'rgba(165, 100, 40, 0.😎',
+                    borderColor: 'rgba(165, 100, 40, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        function updateTime() {
+            const now = new Date();
+            const date = now.toLocaleDateString('en-GB');
+            const time = now.toLocaleTimeString('en-GB');
+            document.getElementById('current-time').textContent = ${time}, ${date};
+        }
+
+        setInterval(updateTime, 1000);
+        updateTime();  // Initial call to set the time immediately
+    </script>
+</body>
+</html>
