@@ -4,11 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Account - Bilinguo</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/insight.css') }}">
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #ffffff;
+            background-color: #fff3cd;
         }
         header {
             background-color: #f8d568;
@@ -28,9 +27,9 @@
             color: black;
             font-weight: bold;
         }
-        main {
+        main.view-account {
             display: flex;
-            justify-content: space-around;
+            justify-content: space-between;
             margin-top: 20px;
         }
         .account-section {
@@ -42,6 +41,7 @@
             max-height: 400px;
             overflow-y: auto;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0;
         }
         h2 {
             text-align: center;
@@ -66,7 +66,7 @@
             </ul>
         </nav>
     </header>
-    <main>
+    <main class="view-account">
         <section class="account-section">
             <h2>Student list</h2>
             <ol>

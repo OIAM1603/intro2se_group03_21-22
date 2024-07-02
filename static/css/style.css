@@ -41,13 +41,8 @@ main {
 }
 
 .resources {
-<<<<<<< HEAD
     background: rgba(255, 255, 255, 0.8);
     padding: 20px;
-=======
-    background: rgba(255, 255, 255, 255);
-    padding: 50px;
->>>>>>> 853d3791c430fbd014aa5ab8377e2d60b0deba73
     border-radius: 10px;
 }
 

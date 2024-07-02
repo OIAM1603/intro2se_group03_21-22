@@ -11,29 +11,19 @@
 <body>
     <header>
         <div class="logo-container">
-<<<<<<< HEAD
             <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bilinguo Logo" class="logo">
-=======
-            <a href="{{ url_for('dashboard') }}">
-                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bilinguo Logo" class="logo">
-            </a></li>
->>>>>>> 853d3791c430fbd014aa5ab8377e2d60b0deba73
-            <img src="{{ url_for('static', filename='images/notice.png') }}" alt="Notice Icon" class="notice">
+            <div class="notice-container">
+                <img src="{{ url_for('static', filename='images/notice.png') }}" alt="Notice Icon" class="notice" id="notice-icon">
+                <div class="notifications-dropdown" id="notifications-dropdown"></div>
+            </div>
         </div>
         <nav>
             <ul>
-<<<<<<< HEAD
                 <li><a href="{{ url_for('dashboard') }}">Home page</a></li>
-                <li><a href="{{ url_for('flashcards') }}">Flashcards</a></li>
-                <li><a href="#">Dictionary</a></li>
-                <li><a href="#">Mock test</a></li>
-                <li><a href="#">Name Student</a></li>
-=======
-                <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
                 <li><a href="{{ url_for('flashcards') }}">Flashcards</a></li>
                 <li><a href="{{ url_for('dictionary') }}">Dictionary</a></li>
                 <li><a href="#">Mock test</a></li>
->>>>>>> 853d3791c430fbd014aa5ab8377e2d60b0deba73
+                <li><a href="#">Name Student</a></li>
             </ul>
         </nav>
         <img src="{{ url_for('static', filename='images/student.png') }}" alt="Student Icon" class="student">
@@ -172,6 +162,67 @@
         document.addEventListener('DOMContentLoaded', () => {
             createCalendar(currentYear, currentMonth);
         });
+
+        // Notification Handling
+        document.getElementById('notice-icon').addEventListener('click', function() {
+            const dropdown = document.getElementById('notifications-dropdown');
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+
+            if (dropdown.style.display === 'block') {
+                fetchNotifications();
+            }
+        });
+
+        function fetchNotifications() {
+            fetch('/get_notifications')
+                .then(response => response.json())
+                .then(notifications => {
+                    const dropdown = document.getElementById('notifications-dropdown');
+                    dropdown.innerHTML = '';  // Clear previous notifications
+
+                    notifications.forEach(notification => {
+                        const notificationItem = document.createElement('a');
+                        notificationItem.href = notification.attachment ? `/static/attachments/${notification.attachment}` : '#';
+                        notificationItem.textContent = notification.text;
+                        dropdown.appendChild(notificationItem);
+                    });
+                });
+        }
+
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('notifications-dropdown');
+            if (!event.target.closest('.notice-container')) {
+                dropdown.style.display = 'none';
+            }
+        });
     </script>
-</body>
-</html>
+    <style>
+        .notice-container {
+            position: relative;
+        }
+
+        .notifications-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: white;
+            border: 1px solid #ddd;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 200px;
+            z-index: 1000;
+        }
+
+        .notifications-dropdown a {
+            display: block;
+            padding: 10px;
+            color: #333;
+            text-decoration: none;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .notifications-dropdown a:hover {
+            background-color: #f5f5f5;
+        }
+
+        .unread-count

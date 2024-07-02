@@ -9,7 +9,6 @@
 </head>
 <body>
     <header>
-<<<<<<< HEAD
         <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bilinguo Logo" class="logo">
         <nav>
             <ul>
@@ -17,14 +16,6 @@
                 <li><a href="{{ url_for('signin') }}">Sign in</a></li>
                 <li><a href="#">Notice</a></li>
                 <li><a href="#">About</a></li>
-=======
-        <a href="{{ url_for('home') }}">
-            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bilinguo Logo" class="logo">
-        </a></li>
-        <nav>
-            <ul>
-                <li><a href="{{ url_for('signin') }}">Sign in</a></li>
->>>>>>> 853d3791c430fbd014aa5ab8377e2d60b0deba73
                 <li><a href="{{ url_for('signup') }}">Sign up</a></li>
             </ul>
         </nav>
@@ -39,26 +30,19 @@
             <h2>Anyone can practise with our free resources</h2>
             <div class="resource-grid">
                 <div class="grid-item">
-<<<<<<< HEAD
-                    <img src="{{ url_for('static', filename='images/dictionary.png') }}" alt="Dictionary">
-                    <p>Dictionary</p>
-                </div>
-                <div class="grid-item">
-                    <img src="{{ url_for('static', filename='images/flashcards.png') }}" alt="Flashcards">
-                    <p>Flashcards</p>
-                </div>
-                <div class="grid-item">
-                    <img src="{{ url_for('static', filename='images/mocktests.png') }}" alt="Mock tests">
-                    <p>Mock tests</p>
-=======
+                    <a href="{{ url_for('dictionary') }}">
                         <img src="{{ url_for('static', filename='images/dictionary.png') }}" alt="Dictionary">
+                    </a>
                 </div>
                 <div class="grid-item">
+                    <a href="{{ url_for('flashcards') }}">
                         <img src="{{ url_for('static', filename='images/flashcards.png') }}" alt="Flashcards">
+                    </a>
                 </div>
                 <div class="grid-item">
+                    <a href="{{ url_for('mocktests') }}">
                         <img src="{{ url_for('static', filename='images/mocktests.png') }}" alt="Mock tests">
->>>>>>> 853d3791c430fbd014aa5ab8377e2d60b0deba73
+                    </a>
                 </div>
             </div>
         </section>

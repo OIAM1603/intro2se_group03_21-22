@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Report - Bilinguo</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/insight.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <header>
@@ -18,10 +19,47 @@
         </nav>
     </header>
     <main>
-        <section class="report">
-            <h1>Report</h1>
-            <!-- Report content goes here -->
+        <h1>Report</h1>
+        <section>
+            <h2>Account Statistics</h2>
+            <p>Total Accounts: {{ total_accounts }}</p>
+            <p>Students: {{ student_accounts }}</p>
+            <p>Teachers: {{ teacher_accounts }}</p>
         </section>
+        <section>
+            <h2>Login Activity</h2>
+            <canvas id="loginChart"></canvas>
+            <p>Average login duration: {{ login_data.avg_login_duration | round(2) }} seconds</p>
+        </section>
+        <form action="{{ url_for('export_report') }}" method="get">
+            <button type="submit">Export to PDF</button>
+        </form>
     </main>
+    <script>
+        const loginData = {{ login_data.daily_login_counts|tojson }};
+        const labels = Object.keys(loginData);
+        const data = Object.values(loginData);
+        const ctx = document.getElementById('loginChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Number of Logins',
+                    data: data,
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 </html>

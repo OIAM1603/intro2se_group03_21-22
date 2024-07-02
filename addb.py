@@ -1,16 +1,15 @@
 import sqlite3
+from datetime import datetime, timedelta
 
-def add_sample_data():
-    conn = sqlite3.connect('database.db')
-    c = conn.cursor()
-    c.execute('''
-        INSERT INTO users (name, email, role) VALUES
-        ('Phạm Xuân Hòa', 'toan@example.com', 'student'),
-        ('Nguyễn Thị Thanh Ngọc', 'nhi@example.com', 'teacher')
-    ''')
-    conn.commit()
-    conn.close()
 
-if __name__ == "__main__":
-    add_sample_data()
-    print("Sample data added successfully.")
+conn = sqlite3.connect('database.db')
+cursor = conn.cursor()
+cursor.execute('''CREATE TABLE IF NOT EXISTS user_notifications (
+    email TEXT,
+    notification_id INTEGER,
+    is_read INTEGER DEFAULT 0,
+    FOREIGN KEY (email) REFERENCES users(username),
+    FOREIGN KEY (notification_id) REFERENCES notifications(id)
+)''')
+conn.commit()
+conn.close()
