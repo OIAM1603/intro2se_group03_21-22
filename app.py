@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 import requests
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'BILINGGO'
@@ -32,6 +32,44 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS FLASHCARD(
                FORM TEXT,
                MEANING TEXT)''')
 
+def get_start_and_end_of_week():
+    today = datetime.now()
+    start_of_week = today - timedelta(days=today.weekday())  # Monday
+    end_of_week = start_of_week + timedelta(days=6)  # Sunday
+    start_of_week = datetime(start_of_week.year, start_of_week.month, start_of_week.day)
+    end_of_week = datetime(end_of_week.year, end_of_week.month, end_of_week.day, 23, 59, 59)
+    print('START ')
+    print(start_of_week)
+    print('END ')
+    print(end_of_week)
+    return start_of_week, end_of_week
+
+def count_logins_each_day_of_week(signed_in_email):
+    start_of_week, end_of_week = get_start_and_end_of_week()
+    cursor.execute('''
+        SELECT TIMESTAMP FROM LOGIN_RECORD
+        WHERE TIMESTAMP BETWEEN ? AND ? AND EMAIL = ?
+    ''', (start_of_week.timestamp(), end_of_week.timestamp(),signed_in_email))
+
+    conn.commit()
+
+    login_records = cursor.fetchall()
+    print('test date ')
+    print(login_records)
+    conn.close()
+
+    # Initialize a list to count logins for each day of the week
+    login_count = [0] * 7  # 7 days in a week
+
+    # Count logins for each day
+    for (timestamp,) in login_records:
+        login_date = datetime.fromtimestamp(timestamp)
+        day_index = (login_date - start_of_week).days
+        if 0 <= day_index < 7:
+            login_count[day_index] += 1
+
+    return login_count
+
 cursor.execute('''CREATE TABLE IF NOT EXISTS LOGIN_RECORD(
     ID INTEGER PRIMARY KEY AUTOINCREMENT,
     EMAIL TEXT,
@@ -44,6 +82,7 @@ conn.commit()
 def home():
     return render_template('index.html')
 
+count_login = []
 @app.route('/signin', methods=['GET', 'POST'])
 def signin():
     msg = ''
@@ -55,17 +94,20 @@ def signin():
         row_num = len(cursor.fetchall())
         if row_num == 1:
             session['email'] = email
-            test = session['email']
-            print('Test ' + test);
-            signin_time = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+            signin_time = datetime.utcnow().timestamp()
             cursor.execute("INSERT INTO LOGIN_RECORD (EMAIL, TIMESTAMP) VALUES (?,?)",(email,signin_time))
             conn.commit()
             cursor.execute("SELECT * FROM LOGIN_RECORD")
             rows = cursor.fetchall()
             print(rows)
+            global count_login
+            count_login = count_logins_each_day_of_week(email)
+            print(count_login)
             return redirect(url_for('dashboard'))
         
+        conn.commit()
         cursor.execute("SELECT * FROM USERS WHERE USERNAME = ?",(email,))
+        conn.commit()
         row_num = len(cursor.fetchall())
         if row_num == 0:
             msg = 'This email has not been registered!'
@@ -96,7 +138,9 @@ def signup():
 
 @app.route('/dashboard')
 def dashboard():
-    return render_template('dashboard.html')
+    print('test1111111111')
+    print(count_login)
+    return render_template('dashboard.html', logincount = count_login)
 count = 0;
 @app.route('/flashcards')
 @app.route('/flashcards', methods=['GET', 'POST'])

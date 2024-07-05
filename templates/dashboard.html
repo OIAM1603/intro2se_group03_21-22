@@ -52,6 +52,8 @@
         </section>
     </main>
     <script>
+        const login_count = JSON.parse('{{logincount | tojson | safe}}');
+        console.log(login_count);
         const ctx = document.getElementById('visitChart').getContext('2d');
         const visitChart = new Chart(ctx, {
             type: 'bar',
@@ -59,7 +61,7 @@
                 labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
                 datasets: [{
                     label: 'Number of visits',
-                    data: [2, 7, 15, 3, 5, 1, 0],
+                    data: login_count,
                     backgroundColor: 'rgba(165, 100, 40, 0.8)',
                     borderColor: 'rgba(165, 100, 40, 1)',
                     borderWidth: 1
