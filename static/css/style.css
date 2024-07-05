@@ -16,7 +16,9 @@ header {
 .logo {
     height: 50px;
 }
-
+.notice {
+    height: 40px;
+}
 nav ul {
     list-style: none;
     display: flex;

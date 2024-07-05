@@ -5,10 +5,12 @@ from datetime import datetime
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'BILINGGO'
+
 def get_db_connection():
     conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
     return conn
+
 # Khởi tạo cơ sở dữ liệu
 def init_db():
     conn = sqlite3.connect('database.db')
@@ -24,9 +26,10 @@ def init_db():
     )''')
     conn.commit()
     conn.close()
-conn = sqlite3.connect('database.db', check_same_thread= False)
 
+conn = sqlite3.connect('database.db', check_same_thread= False)
 cursor = conn.cursor()
+
 cursor.execute('''CREATE TABLE IF NOT EXISTS users (
     username TEXT PRIMARY KEY,
     password TEXT,
@@ -41,39 +44,35 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS LOGIN_RECORD(
     EMAIL TEXT,
     TIMESTAMP INTEGER)''')
 conn.commit()
-cursor.execute("DELETE FROM USERS")
-conn.commit()
 
 @app.route('/')
 def home():
     return render_template('index.html')
 
-# def home():
-#     return render_template('index.html')
 @app.route('/notifications/read/<int:notification_id>')
 def mark_notification_read(notification_id):
-    user_id = session.get('user_id')
+    user_email = session.get('user_email')
     
-    if user_id is None:
+    if user_email is None:
         return redirect(url_for('signin'))
     
-    conn = sqlite3.connect('database.db')
+    conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute('UPDATE user_notifications SET is_read = 1 WHERE user_id = ? AND notification_id = ?', (user_id, notification_id))
+    cur.execute('UPDATE user_notifications SET is_read = 1 WHERE email = ? AND notification_id = ?', (user_email, notification_id))
     conn.commit()
     conn.close()
-    return redirect(url_for('index'))
+    return redirect(url_for('dashboard'))
 
 @app.route('/notifications/unread_count')
 def unread_count():
-    user_id = session.get('user_id')
+    user_email = session.get('user_email')
     
-    if user_id is None:
+    if user_email is None:
         return {'count': 0}
     
-    conn = sqlite3.connect('database.db')
+    conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute('SELECT COUNT(*) FROM user_notifications WHERE user_id = ? AND is_read = 0', (user_id,))
+    cur.execute('SELECT COUNT(*) FROM user_notifications WHERE email = ? AND is_read = 0', (user_email,))
     count = cur.fetchone()[0]
     conn.close()
     return {'count': count}
@@ -93,6 +92,7 @@ def signin():
             cursor.execute("SELECT * FROM LOGIN_RECORD")
             rows = cursor.fetchall()
             print(rows)
+            session['user_email'] = email
             return redirect(url_for('dashboard'))
         else:
             print('Sign In Denied')
@@ -145,7 +145,7 @@ def dashboard():
     # Get notifications for the user
     cur.execute('''
     SELECT n.*, un.is_read FROM notifications n
-    JOIN user_notifications un ON n.id = un.notification_id
+    JOIN user_notifications un ON n.notification_id = un.notification_id
     WHERE un.email = ?
     ORDER BY n.created_at DESC
     ''', (user_email,))
@@ -168,9 +168,9 @@ def get_notifications():
     cur = conn.cursor()
     
     cur.execute('''
-    SELECT n.notification_text, n.attachment_filename, n.created_at 
+    SELECT n.notification_id, n.notification_text, n.created_at 
     FROM notifications n 
-    JOIN user_notifications un ON n.id = un.notification_id 
+    JOIN user_notifications un ON n.notification_id = un.notification_id 
     WHERE un.email = ? AND un.is_read = 0
     ORDER BY n.created_at DESC
     ''', (user_email,))
@@ -179,11 +179,67 @@ def get_notifications():
     conn.close()
     
     notifications_list = [
-        {"text": n['notification_text'], "attachment": n['attachment_filename'], "created_at": n['created_at']}
+        {"id": n['notification_id'], "text": n['notification_text'],  "created_at": n['created_at']}
         for n in notifications
     ]
     
     return jsonify(notifications_list)
+
+
+@app.route('/mark_as_read/<int:notification_id>', methods=['POST'])
+def mark_as_read(notification_id):
+    user_email = session.get('user_email')
+    if not user_email:
+        return redirect(url_for('signin'))
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    cur.execute('''
+    UPDATE user_notifications
+    SET is_read = 1
+    WHERE notification_id = ? AND email = ?
+    ''', (notification_id, user_email))
+    
+    conn.commit()
+    conn.close()
+    
+    return jsonify({"status": "success"})
+
+@app.route('/notification/<int:notification_id>')
+def notification(notification_id):
+    user_email = session.get('user_email')
+    if not user_email:
+        return redirect(url_for('signin'))
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    # Lấy danh sách thông báo
+    cur.execute('''
+    SELECT n.notification_id, n.notification_text, n.created_at, un.is_read 
+    FROM notifications n
+    JOIN user_notifications un ON n.notification_id = un.notification_id
+    WHERE un.email = ?
+    ORDER BY n.created_at DESC
+    ''', (user_email,))
+    notifications = cur.fetchall()
+    
+    # Lấy chi tiết thông báo được chọn
+    cur.execute('''
+    SELECT n.*, un.is_read FROM notifications n
+    JOIN user_notifications un ON n.notification_id = un.notification_id
+    WHERE n.notification_id = ? AND un.email = ?
+    ''', (notification_id, user_email))
+    notification = cur.fetchone()
+    
+    if not notification:
+        return redirect(url_for('dashboard'))
+    
+    conn.close()
+    
+    return render_template('notification.html', notifications=notifications, notification=notification)
+
 
 @app.route('/flashcards')
 def flashcards():
@@ -223,8 +279,6 @@ def dictionary():
 def mocktests():
     return render_template('mocktests.html')
 
-
 if __name__ == '__main__':
     app.run(debug=True)
 
-conn.close()

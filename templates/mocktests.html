@@ -8,10 +8,9 @@
 </head>
 <body>
     <header>
-        <div class="logo-container">
-            <img src="logo.png" alt="BILINGUO" class="logo">
-            <span>BILINGUO</span>
-        </div>
+        <a href="{{ url_for('dashboard') }}">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bilinguo Logo" class="logo">
+        </a></li>
         <nav>
             <ul>
                 <li><a href="#">Home page</a></li>

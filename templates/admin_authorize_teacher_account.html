@@ -3,25 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Account - Bilinguo</title>
+    <title>Authorize teacher account - Bilinguo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/insight.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
 </head>
 <body>
     <header>
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bilinguo Logo" class="logo">
+        </div>
         <nav>
             <ul>
                 <li><a href="{{ url_for('admin_dashboard') }}">Home page</a></li>
                 <li><a href="{{ url_for('admin_view_account') }}">View account</a></li>
                 <li><a href="{{ url_for('admin_report') }}">Report</a></li>
-                <li><a href="{{ url_for('admin_create_account') }}">Create account</a></li>
+                <li><a href="{{ url_for('admin_authorize_teacher_account') }}">Authorize account</a></li>
+                <li><a href="{{ url_for('admin_create_notification') }}">Create notification</a></li>
             </ul>
         </nav>
+        <img src="{{ url_for('static', filename='images/admin.png') }}" alt="Admin Icon" class="admin">
     </header>
     <main class="sign-up-main">
         <section class="sign-up-section">
-            <h1>CREATE NEW ACCOUNT</h1>
-            <form action="{{ url_for('admin_create_account') }}" method="post">
+            <h1>AUTHORIZE TEACHER ACCOUNT</h1>
+            <form action="{{ url_for('admin_authorize_teacher_account') }}" method="post">
                 <label for="name">Name *</label>
                 <input type="text" id="name" name="name" required>
                 <label for="email">Email *</label>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification Detail - Bilinguo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/insight.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bilinguo Logo" class="logo">
+            <div class="notice-container">
+                <img src="{{ url_for('static', filename='images/notice.png') }}" alt="Notice Icon" class="notice">
+                <span class="badge" id="notification-count">{{ notifications|length }}</span>
+            </div>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('dashboard') }}">Home page</a></li>
+                <li><a href="{{ url_for('flashcards') }}">Flashcards</a></li>
+                <li><a href="{{ url_for('dictionary') }}">Dictionary</a></li>
+                <li><a href="{{ url_for('mocktests') }}">Mock test</a></li>
+                <li><a href="#">Name Student</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div class="notification-container">
+            <div class="notification-list">
+                {% for notif in notifications %}
+                <div class="notification-item {% if notif.is_read %}read{% endif %}" onclick="window.location.href='{{ url_for('notification', notification_id=notif.notification_id) }}'">
+                    <p>{{ notif.notification_text }}</p>
+                    <small>{{ notif.created_at }}</small>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="notification-detail">
+                <h2 class="title">Notification Detail</h2>
+                    <div class="noti">
+                        <p>{{ notification.created_at }}</p>
+                        <p>{{ notification.notification_text }}</p>
+                    <div>
+        </div>
+    </main>
+</body>
+</html>
