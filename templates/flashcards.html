@@ -98,6 +98,23 @@
                 </form>
             </div>
         </div>
+        <div id="test-interface" style="display: none;">
+            <h2>Test</h2>
+            <div class="flashcard-test">
+                <div class="flashcard">
+                    <h2 class="flashcard-term"></h2>
+                    <p class="flashcard-pronunciation"></p>
+                    <p class="flashcard-definition"></p>
+                </div>
+                <div class="answers">
+                    <button class="answer" onclick="selectAnswer(0)"></button>
+                    <button class="answer" onclick="selectAnswer(1)"></button>
+                    <button class="answer" onclick="selectAnswer(2)"></button>
+                    <button class="answer" onclick="selectAnswer(3)"></button>
+                </div>
+                <button class="next-button" onclick="nextQuestion()">Next</button>
+            </div>
+        </div>
     </main>
     <script>
         let categories = document.querySelectorAll('.flashcard-category:not(.add-more)');
@@ -105,17 +122,18 @@
         let currentCategoryIndex = 0;
         let index = 0;
         let currentCategory = '';
-        flashcards = JSON.parse('{{ flashcards | tojson | safe}}');
+        let flashcards = JSON.parse('{{ flashcards | tojson | safe}}');
+        let currentTestFlashcards = [];
+        let currentQuestionIndex = 0;
+        let correctAnswerIndex = 0;
+
         console.log('Flashcards data:', flashcards);
+
         function updateCategories() {
             categories = document.querySelectorAll('.flashcard-category:not(.add-more)');
             categories.forEach((category, index) => {
                 category.style.display = index >= currentCategoryIndex && index < currentCategoryIndex + 3 ? 'flex' : 'none';
             });
-        }
-
-        function viewAndRedirect(theme) {
-            viewFlashcards(selected_theme);
         }
 
         function navigate(direction) {
@@ -128,8 +146,6 @@
         function viewFlashcards(category) {
             currentCategory = category;
             document.getElementById('currentCategoryInput').value = category;
-            flashcards = JSON.parse('{{ flashcards | tojson | safe}}');
-            console.log(flashcards);
             document.querySelector('.flashcards-library').style.display = 'none';
             document.querySelector('.flashcards-view').style.display = 'block';
             document.querySelector('.add-category-section').style.display = 'none';
@@ -138,12 +154,10 @@
         }
 
         function updateFlashcardDisplay(i) {
-            console.log(i);
-            if(flashcards[i][0] === currentCategory)
-            {
-                document.querySelector('.flashcard-term').textContent = flashcards[i][1]; // Assuming WORD is at index 1
-                document.querySelector('.flashcard-pronunciation').textContent = flashcards[i][2]; // Assuming PRONUNCIATION is at index 2
-                document.querySelector('.flashcard-definition').textContent = flashcards[i][3]; // Assuming FORM is at index 3
+            if(flashcards[i][0] === currentCategory) {
+                document.querySelector('.flashcard-term').textContent = flashcards[i][1];
+                document.querySelector('.flashcard-pronunciation').textContent = flashcards[i][2];
+                document.querySelector('.flashcard-definition').textContent = flashcards[i][3];
             }
         }
 
@@ -156,12 +170,71 @@
             updateFlashcardDisplay(index);
         }
 
-
         function showLibrary() {
             document.querySelector('.flashcards-library').style.display = 'flex';
             document.querySelector('.flashcards-view').style.display = 'none';
             document.querySelector('.add-category-section').style.display = 'none';
             document.getElementById('category-title').textContent = 'Flashcards library';
+        }
+
+        function startTest() {
+            currentTestFlashcards = flashcards.filter(fc => fc[0] === currentCategory);
+            currentQuestionIndex = 0;
+            showTestInterface();
+            loadQuestion();
+        }
+
+        function showTestInterface() {
+            document.querySelector('.flashcards-library').style.display = 'none';
+            document.querySelector('.flashcards-view').style.display = 'none';
+            document.getElementById('test-interface').style.display = 'block';
+        }
+
+        function loadQuestion() {
+            if (currentQuestionIndex < currentTestFlashcards.length) {
+                const flashcard = currentTestFlashcards[currentQuestionIndex];
+                const correctMeaning = flashcard[4];
+                const meanings = getShuffledMeanings(correctMeaning);
+                correctAnswerIndex = meanings.indexOf(correctMeaning);
+
+                document.querySelector('.flashcard-term').textContent = flashcard[1];
+                document.querySelector('.flashcard-pronunciation').textContent = flashcard[2];
+                document.querySelector('.flashcard-definition').textContent = flashcard[3];
+
+                const answerButtons = document.querySelectorAll('.answer');
+                answerButtons.forEach((button, index) => {
+                    button.textContent = meanings[index];
+                    button.classList.remove('correct', 'incorrect');
+                });
+            } else {
+                alert('Test completed!');
+                showLibrary();
+            }
+        }
+
+        function getShuffledMeanings(correctMeaning) {
+            const allMeanings = flashcards.map(fc => fc[4]);
+            const shuffled = allMeanings.sort(() => 0.5 - Math.random());
+            const selected = shuffled.slice(0, 3);
+            if (!selected.includes(correctMeaning)) {
+                selected[Math.floor(Math.random() * 3)] = correctMeaning;
+            }
+            return selected.sort(() => 0.5 - Math.random());
+        }
+
+        function selectAnswer(index) {
+            const answerButtons = document.querySelectorAll('.answer');
+            if (index === correctAnswerIndex) {
+                answerButtons[index].classList.add('correct');
+            } else {
+                answerButtons[index].classList.add('incorrect');
+                answerButtons[correctAnswerIndex].classList.add('correct');
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            loadQuestion();
         }
 
         function editFlashcard() {
@@ -191,7 +264,6 @@
             const addFlashcardSection = document.getElementById('addFlashcardSection');
             addFlashcardSection.style.display = addFlashcardSection.style.display === 'none' ? 'block' : 'none';
         }
-
 
         function showAddCategoryModal() {
             document.querySelector('.flashcards-library').style.display = 'none';

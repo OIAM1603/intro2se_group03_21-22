@@ -174,6 +174,7 @@ def flashcards():
                 return render_template('flashcards.html', flashcards=flashcards, s_theme = selected_theme)
             else:
                 cursor.execute("SELECT DISTINCT THEME FROM FLASHCARD")
+                conn.commit();
                 theme = [row[0] for row in cursor.fetchall()]
                 print(theme)
                 print('testcard')
