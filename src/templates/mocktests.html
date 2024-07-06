@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Bilinguo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/insight.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <a href="{{ url_for('dashboard') }}">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bilinguo Logo" class="logo">
+            </a>
+            <img src="{{ url_for('static', filename='images/notice.png') }}" alt="Notice Icon" class="notice">
+        </div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                <li><a href="{{ url_for('flashcards') }}">Flashcards</a></li>
+                <li><a href="{{ url_for('dictionary') }}">Dictionary</a></li>
+                <li><a href="#">Mock test</a></li>
+            </ul>
+        </nav>
+        <div class="student-menu">
+            <img src="{{ url_for('static', filename='images/student.png') }}" alt="Student Icon" class="student" onclick="toggleMenu()">
+            <div class="dropdown-menu" id="dropdownMenu">
+                <a href="{{ url_for('profile') }}">Profile</a>
+                <a href="{{ url_for('logout') }}">Logout</a>
+            </div>
+        </div>
+    </header>
+    <main>
+        <h1>Mocktests</h1>
+        <div class="carousel">
+            <button class="prev" onclick="prevSlide()">&lt;</button>
+            <div class="flashcards">
+                <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                    <div class="flashcard-front">
+                        <img src="school-icon.png" alt="School">
+                        <div class="label">School</div>
+                    </div>
+                    <div class="flashcard-back">
+                        <div>School content</div>
+                    </div>
+                </div>
+                <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                    <div class="flashcard-front">
+                        <img src="weather-icon.png" alt="Weather">
+                        <div class="label">Weather</div>
+                    </div>
+                    <div class="flashcard-back">
+                        <div>Weather content</div>
+                    </div>
+                </div>
+                <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                    <div class="flashcard-front">
+                        <img src="others-icon.png" alt="Others">
+                        <div class="label">Others</div>
+                    </div>
+                    <div class="flashcard-back">
+                        <div>Other content</div>
+                    </div>
+                </div>
+                <div class="flashcard">
+                    <div class="flashcard-front">
+                        <div class="label">+</div>
+                    </div>
+                    <div class="flashcard-back">
+                        <div>Add new flashcard</div>
+                    </div>
+                </div>
+            </div>
+            <button class="next" onclick="nextSlide()">&gt;</button>
+        </div>
+        <div class="dots">
+            <span class="dot active" onclick="currentSlide(1)"></span>
+            <span class="dot" onclick="currentSlide(2)"></span>
+            <span class="dot" onclick="currentSlide(3)"></span>
+            <span class="dot" onclick="currentSlide(4)"></span>
+        </div>
+    </main>
+    <script>
+        let slideIndex = 1;
+        showSlides(slideIndex);
+
+        function toggleMenu() {
+            var menu = document.getElementById('dropdownMenu');
+            if (menu.style.display === 'block') {
+                menu.style.display = 'none';
+            } else {
+                menu.style.display = 'block';
+            }
+        }
+        
+        function nextSlide() {
+            showSlides(slideIndex += 1);
+        }
+
+        function prevSlide() {
+            showSlides(slideIndex -= 1);
+        }
+
+        function currentSlide(n) {
+            showSlides(slideIndex = n);
+        }
+
+        function showSlides(n) {
+            let slides = document.getElementsByClassName("flashcard");
+            let dots = document.getElementsByClassName("dot");
+
+            if (n > slides.length) {
+                slideIndex = slides.length;
+            }
+
+            if (n < 1) {
+                slideIndex = 1;
+            }
+
+            for (let i = 0; i < slides.length; i++) {
+                slides[i].style.display = "none";
+            }
+
+            for (let i = 0; i < dots.length; i++) {
+                dots[i].className = dots[i].className.replace(" active", "");
+            }
+
+            slides[slideIndex - 1].style.display = "block";
+            dots[slideIndex - 1].className += " active";
+        }
+    </script>
+</body>
+</html>
