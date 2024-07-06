@@ -57,6 +57,7 @@
         </section>
     </main>
     <script>
+        const login_count = JSON.parse('{{logincount | tojson | safe}}');
         const ctx = document.getElementById('visitChart').getContext('2d');
         const visitChart = new Chart(ctx, {
             type: 'bar',
@@ -64,8 +65,8 @@
                 labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
                 datasets: [{
                     label: 'Number of visits',
-                    data: [2, 7, 15, 3, 5, 1, 0],
-                    backgroundColor: 'rgba(165, 100, 40, 0.😎',
+                    data: login_count,
+                    backgroundColor: 'rgba(165, 100, 40, 0.8)',
                     borderColor: 'rgba(165, 100, 40, 1)',
                     borderWidth: 1
                 }]
@@ -83,7 +84,7 @@
             const now = new Date();
             const date = now.toLocaleDateString('en-GB');
             const time = now.toLocaleTimeString('en-GB');
-            document.getElementById('current-time').textContent = '${time}, ${date}';
+            document.getElementById('current-time').textContent = `${time}, ${date}`;
         }
 
         setInterval(updateTime, 1000);

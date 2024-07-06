@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, g
 import requests
 import sqlite3
 from datetime import datetime, timedelta, timezone
@@ -6,10 +6,23 @@ from datetime import datetime, timedelta, timezone
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'BILINGGO'
 conn = sqlite3.connect('database.db', check_same_thread= False)
+DATABASE = 'database.db'
+
+def get_db():
+    if 'db' not in g:
+        g.db = sqlite3.connect(DATABASE, check_same_thread=False)
+    return g.db
+
+@app.teardown_appcontext
+def close_db(error):
+    if 'db' in g:
+        g.db.close()
+
 
 cursor = conn.cursor()
 cursor.execute("DROP TABLE IF EXISTS USERS")
 conn.commit()
+
 cursor.execute('''CREATE TABLE IF NOT EXISTS users (
     username TEXT PRIMARY KEY,
     password TEXT,
@@ -22,6 +35,7 @@ conn.commit()
 
 cursor.execute("DROP TABLE IF EXISTS FLASHCARD")
 conn.commit()
+
 
 cursor.execute('''CREATE TABLE IF NOT EXISTS FLASHCARD(
                ID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -56,7 +70,6 @@ def count_logins_each_day_of_week(signed_in_email):
     login_records = cursor.fetchall()
     print('test date ')
     print(login_records)
-    conn.close()
 
     # Initialize a list to count logins for each day of the week
     login_count = [0] * 7  # 7 days in a week
@@ -75,7 +88,8 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS LOGIN_RECORD(
     EMAIL TEXT,
     TIMESTAMP INTEGER)''')
 conn.commit()
-cursor.execute("DELETE FROM USERS")
+
+cursor.execute("INSERT INTO USERS VALUES ('admin1@outlook.com','1','ADMIN','113','MALE','ADMIN')")
 conn.commit()
 
 @app.route('/')
@@ -98,12 +112,19 @@ def signin():
             cursor.execute("INSERT INTO LOGIN_RECORD (EMAIL, TIMESTAMP) VALUES (?,?)",(email,signin_time))
             conn.commit()
             cursor.execute("SELECT * FROM LOGIN_RECORD")
+            conn.commit()
             rows = cursor.fetchall()
             print(rows)
             global count_login
             count_login = count_logins_each_day_of_week(email)
             print(count_login)
-            return redirect(url_for('dashboard'))
+            cursor.execute("SELECT ROLE FROM USERS WHERE USERNAME = ?",(email,))
+            role = cursor.fetchone()
+            
+            if role[0] == 'ADMIN':
+                return redirect(url_for('admin_dashboard'))
+            if role[0] == 'STUDENT':
+                return redirect(url_for('dashboard'))
         
         conn.commit()
         cursor.execute("SELECT * FROM USERS WHERE USERNAME = ?",(email,))
@@ -138,16 +159,17 @@ def signup():
 
 @app.route('/dashboard')
 def dashboard():
-    print('test1111111111')
-    print(count_login)
     return render_template('dashboard.html', logincount = count_login)
-count = 0;
+
 @app.route('/flashcards')
 @app.route('/flashcards', methods=['GET', 'POST'])
 def flashcards():
+    db = get_db()
+    cursor = db.cursor()
     if 'email' in session:
         email = session['email']
         if request.method == 'POST':
+            print(request.form)
             vocabulary = request.form['Vocabulary']
             pronunciation = request.form['Pronunciation']
             form = request.form['Definition']
@@ -159,7 +181,7 @@ def flashcards():
             # Insert the new flashcard into the database
             cursor.execute("INSERT INTO FLASHCARD (EMAIL, THEME, WORD, PRONUNCIATION, FORM, MEANING) VALUES (?, ?, ?, ?, ?, ?)",
                            (email, theme, vocabulary, pronunciation, form, meaning))
-            conn.commit()
+            db.commit()
             
             # Redirect to the flashcards page or perform any other action as needed
             return redirect(url_for('flashcards'))
@@ -174,13 +196,10 @@ def flashcards():
                 return render_template('flashcards.html', flashcards=flashcards, s_theme = selected_theme)
             else:
                 cursor.execute("SELECT DISTINCT THEME FROM FLASHCARD")
-                conn.commit();
+                db.commit()
                 theme = [row[0] for row in cursor.fetchall()]
-                print(theme)
-                print('testcard')
                 cursor.execute('SELECT THEME, WORD, PRONUNCIATION, FORM, MEANING FROM FLASHCARD WHERE EMAIL = ?',(email,))
                 flashcards = cursor.fetchall()
-                print('check 1')
                 return render_template('flashcards.html', flashcards = flashcards, email=email, themes = theme)
         # Handle GET request to display the flashcards page
     else:
@@ -215,6 +234,86 @@ def format_definition(data):
 @app.route('/mocktests')
 def mocktests():
     return render_template('mocktests.html')
+
+@app.route('/admin_dashboard')
+def admin_dashboard():
+    return render_template('admin_dashboard.html', admin_name="Admin Name", logincount = count_login)
+
+@app.route('/admin_create_notification', methods=['POST'])
+def admin_create_notification():
+    # Xử lý logic tạo thông báo ở đây
+    pass
+    if 'email' in session:
+        email = session['email']
+        if request.method == 'POST':
+            vocabulary = request.form['vocabulary']
+            print(vocabulary)
+            pronunciation = request.form['pronunciation']
+            form = request.form['form']
+            meaning = request.form['meaning']
+            cursor.execute("INSERT INTO FLASHCARDS (EMAIL, WORD, PRONUNCIATION, FORM, MEANING) VALUES (?,?,?,?,?)",(email, vocabulary,pronunciation,form,meaning))
+            conn.commit
+            cursor.execute("SELECT * FROM FLASHCARDS")
+            print(cursor.fetchall())
+        return render_template('flashcards.html', email = email)
+    else:
+        return redirect(url_for('signin'))
+def get_db_connection():
+    conn = sqlite3.connect('database.db')
+    conn.row_factory = sqlite3.Row
+    return conn
+
+@app.route('/admin_view_account')
+def admin_view_account():
+    conn = get_db_connection()
+    students = conn.execute('SELECT name FROM users WHERE role = "STUDENT"').fetchall()
+    teachers = conn.execute('SELECT name FROM users WHERE role = "TEACHER"').fetchall()
+    recent_accounts = conn.execute('SELECT name, role FROM users').fetchall()
+    conn.close()
+    return render_template('admin_view_account.html', students=students, teachers=teachers, recent_accounts=recent_accounts)
+
+@app.route('/admin_report')
+def admin_report():
+    return render_template('admin_report.html')
+
+# Kiểm tra và khởi tạo cơ sở dữ liệu nếu chưa tồn tại
+def init_db():
+    if not os.path.exists('database.db'):
+        conn = sqlite3.connect('database.db')
+        c = conn.cursor()
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS users (
+                username TEXT PRIMARY KEY,
+                name TEXT NOT NULL,
+                email TEXT NOT NULL,
+                role TEXT NOT NULL,
+                phone TEXT NOT NULL,  
+                password TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        conn.commit()
+        conn.close()
+
+@app.route('/admin_create_account', methods=['GET', 'POST'])
+def admin_create_account():
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        role = 'TEACHER'
+
+        # Thêm thông tin người dùng vào cơ sở dữ liệu
+        conn = sqlite3.connect('database.db')
+        c = conn.cursor()
+        c.execute('''
+            INSERT INTO users (name, email, role) VALUES (?, ?, ?)
+        ''', (name, email, role))
+        conn.commit()
+        conn.close()
+
+        return 'Tài khoản đã được tạo thành công!'  # Hoặc có thể redirect đến một trang thông báo khác
+
+    return render_template('admin_create_account.html')
 
 @app.route('/admin')
 def admin():

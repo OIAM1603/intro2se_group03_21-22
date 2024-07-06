@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Account - Bilinguo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/insight.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+        }
+        header {
+            background-color: #f8d568;
+            padding: 10px;
+            text-align: center;
+        }
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        nav ul li {
+            display: inline;
+            margin-right: 20px;
+        }
+        nav ul li a {
+            text-decoration: none;
+            color: black;
+            font-weight: bold;
+        }
+        main {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+        .account-section {
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            width: 30%;
+            max-height: 400px;
+            overflow-y: auto;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #856404;
+        }
+        ol {
+            padding-left: 20px;
+        }
+        ol li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('admin_dashboard') }}">Home page</a></li>
+                <li><a href="{{ url_for('admin_view_account') }}">View account</a></li>
+                <li><a href="{{ url_for('admin_report') }}">Report</a></li>
+                <li><a href="{{ url_for('admin_create_account') }}">Create account</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section class="account-section">
+            <h2>Student list</h2>
+            <ol>
+                {% for student in students %}
+                    <li>{{ student.name }}</li>
+                {% endfor %}
+            </ol>
+        </section>
+        <section class="account-section">
+            <h2>Teacher list</h2>
+            <ol>
+                {% for teacher in teachers %}
+                    <li>{{ teacher.name }}</li>
+                {% endfor %}
+            </ol>
+        </section>
+        <section class="account-section">
+            <h2>Recently created accounts</h2>
+            <ol>
+                {% for account in recent_accounts %}
+                    <li>{{ account.name }} - {{ account.role }}</li>
+                {% endfor %}
+            </ol>
+        </section>
+    </main>
+</body>
+</html>
