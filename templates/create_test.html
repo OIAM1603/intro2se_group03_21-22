@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Test</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/insight.css') }}">
+    <style>
+        body {
+            font-family: "Quicksand", sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, #ffcc33, #ff9900);
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background: #fff;
+        }
+
+        .logo {
+            height: 50px;
+        }
+
+        .notice {
+            height: 40px;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+        }
+
+        main {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .create-test-form {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: inline-block;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .create-test-form label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .wide-input, .wide-select {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .question {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .submit-button {
+            background-color: #ff9900;
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .submit-button:hover {
+            background-color: #e68a00;
+        }
+    </style>
+
+    <script>
+        function generateQuestionForms() {
+            const numQuestions = document.getElementById('num_questions').value;
+            const questionsContainer = document.getElementById('questions-container');
+            questionsContainer.innerHTML = '';  // Clear previous forms
+
+            for (let i = 1; i <= numQuestions; i++) {
+                const questionForm = `
+                    <div class="question">
+                        <h3>Question ${i}</h3>
+                        <label for="question_${i}">Question:</label>
+                        <input type="text" id="question_${i}" name="questions[${i}][question]" required class="wide-input">
+
+                        <label for="option_A_${i}">Option A:</label>
+                        <input type="text" id="option_A_${i}" name="questions[${i}][option_A]" required class="wide-input">
+
+                        <label for="option_B_${i}">Option B:</label>
+                        <input type="text" id="option_B_${i}" name="questions[${i}][option_B]" required class="wide-input">
+
+                        <label for="option_C_${i}">Option C:</label>
+                        <input type="text" id="option_C_${i}" name="questions[${i}][option_C]" required class="wide-input">
+
+                        <label for="option_D_${i}">Option D:</label>
+                        <input type="text" id="option_D_${i}" name="questions[${i}][option_D]" required class="wide-input">
+
+                        <label for="correct_option_${i}">Correct Option:</label>
+                        <select id="correct_option_${i}" name="questions[${i}][correct_option]" required class="wide-select">
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                        </select>
+                    </div>
+                `;
+                questionsContainer.insertAdjacentHTML('beforeend', questionForm);
+            }
+        }
+    </script>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <a href="{{ url_for('teacher_dashboard') }}">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bilinguo Logo" class="logo">
+            </a>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('teacher_dashboard') }}">Home page</a></li>
+                <li><a href="{{ url_for('create_test') }}">Create mock test</a></li>
+                <li><a href="{{ url_for('assign_test') }}">Assign Test</a></li>
+            </ul>
+        </nav>
+        <div class="student-menu">
+            <img src="{{ url_for('static', filename='images/teacher.png') }}" alt="Student Icon" class="student" onclick="toggleMenu()">
+            <div class="dropdown-menu" id="dropdownMenu">
+                <a href="{{ url_for('teacher_profile') }}">Profile</a>
+                <a href="{{ url_for('logout') }}">Logout</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <h1>Create Test</h1>
+        <form action="{{ url_for('create_test') }}" method="post" class="create-test-form">
+            <label for="title">Test Title:</label>
+            <input type="text" id="title" name="title" required class="wide-input">
+
+            <label for="num_questions">Number of Questions:</label>
+            <input type="number" id="num_questions" name="num_questions" required min="1" onchange="generateQuestionForms()" class="wide-input">
+
+            <div id="questions-container"></div>
+
+            <button type="submit" class="submit-button">Create Test</button>
+        </form>
+        </form>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert">
+            {{ message }}
+            </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %} 
+        <script>
+            // Tự động ẩn thông báo sau 2 giây
+            setTimeout(function() {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function(alert) {
+                    alert.style.display = 'none';
+                });
+            }, 2000);
+            function toggleMenu() {
+            var menu = document.getElementById('dropdownMenu');
+            if (menu.style.display === 'block') {
+                menu.style.display = 'none';
+            } else {
+                menu.style.display = 'block';
+            }
+            }
+        </script>
+    </main>
+</body>
+</html>

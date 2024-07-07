@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard - Bilinguo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/insight.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <a href="{{ url_for('teacher_dashboard') }}">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bilinguo Logo" class="logo">
+            </a>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('teacher_dashboard') }}">Home page</a></li>
+                <li><a href="{{ url_for('create_test') }}">Create mock test</a></li>
+                <li><a href="{{ url_for('assign_test') }}">Assign Test</a></li>
+                
+            </ul>
+        </nav>
+        <div class="student-menu">
+            <img src="{{ url_for('static', filename='images/teacher.png') }}" alt="Student Icon" class="student" onclick="toggleMenu()">
+            <div class="dropdown-menu" id="dropdownMenu">
+                <a href="{{ url_for('teacher_profile') }}">Profile</a>
+                <a href="{{ url_for('logout') }}">Logout</a>
+            </div>
+        </div>
+    </header>
+    
+    <main>
+        <div class="dashboard">
+            <h1>{{ admin_name }}</h1>
+            <p id="current-time"></p>
+            <div class="statistics">
+                <h2>Number of visits</h2>
+                <div class="chart">
+                    <canvas id="visitChart"></canvas>
+                </div>
+            </div>
+            <div class="activities">
+                <h2>Recent activities</h2>
+                <ul>
+                    {% for activity in activities %}
+                        <li>{{ activity['activity_description'] }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="calendar">
+                <h2>Calendar</h2>
+                <div id="calendar"></div>
+            </div>
+        </div>
+        <script>
+            const ctx = document.getElementById('visitChart').getContext('2d');
+            const visitCounts = {{ visit_counts | tojson }};
+            const visitChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                    datasets: [{
+                        label: 'Number of visits',
+                        data: [visitCounts['0'], visitCounts['1'], visitCounts['2'], visitCounts['3'], visitCounts['4'], visitCounts['5'], visitCounts['6']],
+                        backgroundColor: 'rgba(165, 100, 40, 0.8)',
+                        borderColor: 'rgba(165, 100, 40, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+
+
+            function updateTime() {
+                const now = new Date();
+                const date = now.toLocaleDateString('en-GB');
+                const time = now.toLocaleTimeString('en-GB');
+                document.getElementById('current-time').textContent = `${time}, ${date}`;
+            }
+
+            setInterval(updateTime, 1000);
+            updateTime();
+
+            function createCalendar(year, month) {
+                const calendar = document.getElementById('calendar');
+                const daysOfWeek = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+                const monthNames = [
+                    'January', 'February', 'March', 'April', 'May', 'June',
+                    'July', 'August', 'September', 'October', 'November', 'December'
+                ];
+                const now = new Date();
+
+                calendar.innerHTML = '';
+
+                const header = document.createElement('div');
+                header.classList.add('calendar-header');
+                header.innerHTML = `
+                    <button onclick="changeMonth(-1)"><<</button>
+                    <span>${monthNames[month]} ${year}</span>
+                    <button onclick="changeMonth(1)">>></button>
+                `;
+                calendar.appendChild(header);
+
+                const dayRow = document.createElement('div');
+                dayRow.classList.add('calendar-days');
+                daysOfWeek.forEach(day => {
+                    const dayCell = document.createElement('div');
+                    dayCell.classList.add('calendar-day');
+                    dayCell.textContent = day;
+                    dayRow.appendChild(dayCell);
+                });
+                calendar.appendChild(dayRow);
+
+                const firstDay = new Date(year, month, 1).getDay();
+                const lastDate = new Date(year, month + 1, 0).getDate();
+
+                const dateRow = document.createElement('div');
+                dateRow.classList.add('calendar-dates');
+                for (let i = 0; i < firstDay; i++) {
+                    const emptyCell = document.createElement('div');
+                    emptyCell.classList.add('calendar-date', 'empty');
+                    dateRow.appendChild(emptyCell);
+                }
+
+                for (let date = 1; date <= lastDate; date++) {
+                    const dateCell = document.createElement('div');
+                    dateCell.classList.add('calendar-date');
+                    dateCell.textContent = date;
+                    if (year === now.getFullYear() && month === now.getMonth() && date === now.getDate()) {
+                        dateCell.classList.add('highlight');
+                    }
+                    dateRow.appendChild(dateCell);
+                }
+                calendar.appendChild(dateRow);
+            }
+
+            let currentYear = new Date().getFullYear();
+            let currentMonth = new Date().getMonth();
+
+            function changeMonth(delta) {
+                currentMonth += delta;
+                if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear -= 1;
+                } else if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear += 1;
+                }
+                createCalendar(currentYear, currentMonth);
+            }
+
+            createCalendar(currentYear, currentMonth);
+            function toggleMenu() {
+            var menu = document.getElementById('dropdownMenu');
+            if (menu.style.display === 'block') {
+                menu.style.display = 'none';
+            } else {
+                menu.style.display = 'block';
+            }
+            }
+        </script>
+    </main>
+</body>
+</html>

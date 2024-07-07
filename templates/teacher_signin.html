@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Bilinguo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+</head>
+<body>
+    <header>
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bilinguo Logo" class="logo">
+        </a></li>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('teacher_signin') }}">Sign in</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main class="sign-in-main">
+        <section class="sign-in-section">
+            <h1>WELCOME TO BILINGUO</h1>
+            <form action="{{ url_for('teacher_signin') }}" method="post">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+                <button type="submit" class="sign-in-button">SIGN IN</button>
+            </form>
+            <p>Don’t have an account? Contact admin to authorize teacher account!</p>
+        </section>
+    </main>
+</body>
+</html>

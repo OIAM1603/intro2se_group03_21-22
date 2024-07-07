@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assign Test - Bilinguo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/insight.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+    <style>
+        label {
+            font-weight: bold;
+            color: #555;
+            align-self: flex-start;
+            margin: 0px auto;
+        }
+        select, input[type="datetime-local"], button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 10px;
+            background-color: #d1810a;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #5D4037;
+        }
+
+        .assign
+        {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            text-align: center;
+        }
+        input[type="datetime-local"] {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <a href="{{ url_for('teacher_dashboard') }}">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bilinguo Logo" class="logo">
+            </a>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('teacher_dashboard') }}">Home Page</a></li>
+                <li><a href="{{ url_for('create_test') }}">Create Mock Test</a></li>
+                <li><a href="{{ url_for('assign_test') }}">Assign Test</a></li>
+            </ul>
+        </nav>
+        <div class="student-menu">
+            <img src="{{ url_for('static', filename='images/teacher.png') }}" alt="Student Icon" class="student" onclick="toggleMenu()">
+            <div class="dropdown-menu" id="dropdownMenu">
+                <a href="{{ url_for('teacher_profile') }}">Profile</a>
+                <a href="{{ url_for('logout') }}">Logout</a>
+            </div>
+        </div>
+    </header>
+    <main>
+            <h1>Assign Test</h1>
+            <form method="POST" action="{{ url_for('assign_test') }}">
+                <label for="test_id">Select Test:</label>
+                <select name="test_id" id="test_id">
+                    {% for test in tests %}
+                        <option value="{{ test.id }}">{{ test.title }}</option>
+                    {% endfor %}
+                </select>
+                <label for="student_username">Select Student:</label>
+                <select name="student_username" id="student_username">
+                    <option value="all">All Students</option>
+                    {% for student in students %}
+                        <option value="{{ student.username }}">{{ student.name }}</option>
+                    {% endfor %}
+                </select>
+                <label for="deadline">Deadline:</label>
+                <input type="datetime-local" name="deadline" id="deadline">
+                <button type="submit">Assign</button>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+            </form>  
+    </main>
+    <script>
+        // Tự động ẩn thông báo sau 2 giây
+        setTimeout(function() {
+            var alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                alert.style.display = 'none';
+            });
+        }, 2000);
+        function toggleMenu() {
+            var menu = document.getElementById('dropdownMenu');
+            if (menu.style.display === 'block') {
+                menu.style.display = 'none';
+            } else {
+                menu.style.display = 'block';
+            }
+            }
+    </script>
+</body>
+</html>
