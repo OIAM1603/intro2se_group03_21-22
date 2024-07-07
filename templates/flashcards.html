@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Bilinguo</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/insight.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/insight_student.css') }}">
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -13,7 +13,7 @@
         <div class="logo-container">
             <a href="{{ url_for('dashboard') }}">
                 <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bilinguo Logo" class="logo">
-            </a></li>
+            </a>
             <img src="{{ url_for('static', filename='images/notice.png') }}" alt="Notice Icon" class="notice">
         </div>
         <nav>
@@ -24,15 +24,22 @@
                 <li><a href="#">Mock test</a></li>
             </ul>
         </nav>
-        <img src="{{ url_for('static', filename='images/student.png') }}" alt="Student Icon" class="student">
+        <div class="student-menu">
+            <img src="{{ url_for('static', filename='images/student.png') }}" alt="Student Icon" class="student" onclick="toggleMenu()">
+            <div class="dropdown-menu" id="dropdownMenu">
+                <a href="{{ url_for('profile') }}">Profile</a>
+                <a href="{{ url_for('logout') }}">Logout</a>
+            </div>
+        </div>
     </header>
+    
     <main>
         <h1 id="category-title">Flashcards library</h1>
         <div id="flashcardsLibrary" class="flashcards-library">
             <button class="navigation-button" onclick="navigate('prev')">&lt;</button>
-            <div class="flashcard-category" onclick="viewFlashcards('School')">School</div>
-            <div class="flashcard-category" onclick="viewFlashcards('Weather')">Weather</div>
-            <div class="flashcard-category" onclick="viewFlashcards('Others')">Others</div>
+            {% for theme in themes %}
+            <div class="flashcard-category" onclick="viewFlashcards('{{ theme }}')">{{ theme }}</div>
+            {% endfor %}
             <div class="flashcard-category add-more" onclick="showAddCategoryModal()">Add more +</div>
             <button class="navigation-button" onclick="navigate('next')">&gt;</button>
         </div>
@@ -49,73 +56,124 @@
             </div>
             <div class="flashcard-container">
                 <button class="navigation-button prev" onclick="navigateFlashcard('prev')">&lt;</button>
-                <div class="flashcard">
-                    <div class="edit-icon" onclick="editFlashcard()">✎</div>
-                    <h2 class="flashcard-term"></h2>
-                    <p class="flashcard-pronunciation"></p>
-                    <p class="flashcard-definition"></p>
+                <div class="flashcard" onclick="flipFlashcard(this)">
+                    <div class="flashcard-inner">
+                        <div class="flashcard-front">
+                            <div class="edit-icon" onclick="editFlashcard(event)">✎</div>
+                            <h2 class="flashcard-term"></h2>
+                            <p class="flashcard-pronunciation"></p>
+                            <p class="flashcard-definition"></p>
+                        </div>
+                        <div class="flashcard-back">
+                            <p class="flashcard-meaning"></p>
+                        </div>
+                    </div>
                 </div>
                 <button class="navigation-button next" onclick="navigateFlashcard('next')">&gt;</button>
             </div>
-            <button class="add-flashcard" onclick="addFlashcard()">+ Add Flashcard</button>
+            <button class="add-flashcard" onclick="toggleAddFlashcard()">+ Add Flashcard</button>
+            <div id="addFlashcardSection" style="display: none;">
+                <form id="addFlashcardForm" action="{{ url_for('flashcards') }}" method="post">
+                    <div class="form-group flashcard-row">
+                        <input type="hidden" id="currentCategoryInput" name="currentCategory" value="">
+                        <input type="text" name="Vocabulary" placeholder="Vocabulary">
+                        <input type="text" name="Pronunciation" placeholder="Pronunciation">
+                        <input type="text" name="Definition" placeholder="Definition">
+                        <input type="text" name="Meaning" placeholder="Meaning">
+                        <button type="button" class="remove-flashcard" onclick="removeFlashcardInput(this)">x</button>
+                    </div>
+                    <button type="submit" id="saveFlashcardsButton">Save Flashcards</button>
+                </form>
+            </div>
+            
         </div>
         <div id="addCategorySection" class="add-category-section" style="display: none;">
             <div class="modal-content">
-                <form id="newCategoryForm">
+                <form id="newCategoryForm" action = "{{ url_for('flashcards') }}" method = "post">
                     <h2>Theme:</h2>
                     <div class="form-group">
-                        <input type="text" id="newCategory" placeholder="Theme name, ex. School, Animal,...">
+                        <input type="text" id="newCategory" name = "newCategory" placeholder="Theme name, ex. School, Animal,...">
                     </div>
                     <div id="flashcardsContainer">
                         <h2>Flashcard 1:</h2>
                         <div class="form-group flashcard-row">
-                            <input type="text" id="Vocabulary" placeholder="Vocabulary">
-                            <input type="text" id="Pronunciation" placeholder="Pronunciation">
-                            <input type="text" id="Definition" placeholder="Definition">
-                            <input type="text" id="Meaning" placeholder="Meaning">
+                            <input type="text" id="Vocabulary" name = "Vocabulary" placeholder="Vocabulary">
+                            <input type="text" id="Pronunciation" name = "Pronunciation" placeholder="Pronunciation">
+                            <input type="text" id="Definition" name = "Definition" placeholder="Definition">
+                            <input type="text" id="Meaning" name = "Meaning" placeholder="Meaning">
                             <button type="button" class="remove-flashcard" onclick="removeFlashcardInput(this)">x</button>
                         </div>
                     </div>
                     <div class="form-actions">
                         <button type="button" class="add-flashcard" onclick="addFlashcardInput()">+</button>
-                        <button type="button" class="submit-button" onclick="submitNewCategory()">Create</button>
+                        <button type="submit" class="submit-button" onclick="submitNewCategory()">Create</button>
                         <button type="button" class="quit-button" onclick="showLibrary()">Quit</button>
                     </div>
                 </form>
             </div>
         </div>
+        <div id="testSection" class="test-section" style="display: none;">
+            <span id="testCategory"></span>
+            <div class="test-question" id="testQuestion">
+                <h2 id="vocabulary"></h2>
+                <p id="pronunciation"></p>
+                <p id="definition"></p>
+            </div>
+            <div class="test-options">
+                <button id="optionA" class="test-option" onclick="checkAnswer('A')">Option A</button>
+                <button id="optionB" class="test-option" onclick="checkAnswer('B')">Option B</button>
+                <button id="optionC" class="test-option" onclick="checkAnswer('C')">Option C</button>
+                <button id="optionD" class="test-option" onclick="checkAnswer('D')">Option D</button>
+            </div>
+            <div class="navigation-buttons">
+                <button id="prevButton" class="nav-button" onclick="prevQuestion()">Prev</button>
+                <button id="nextButton" class="nav-button" onclick="nextQuestion()">Next</button>
+            </div>
+            <div class="results">
+                <p>Correct: <span id="correctCount">0</span></p>
+                <p>Incorrect: <span id="incorrectCount">0</span></p>
+            </div>
+            <button class="quit-button" onclick="quitTest()">Quit Test</button>
+        </div>
     </main>
-
     <script>
         let categories = document.querySelectorAll('.flashcard-category:not(.add-more)');
         const dots = document.querySelectorAll('.dot');
         let currentCategoryIndex = 0;
-        let currentFlashcardIndex = 0;
+        let index = 0;
         let currentCategory = '';
-
-        const flashcards = {
-            School: [
-                { term: "Congratulation", pronunciation: "/kənˌɡrætʃəˈleɪʃn/", definition: "[Noun]" },
-                { term: "Teacher", pronunciation: "/ˈtiːtʃər/", definition: "[Noun]" },
-                { term: "Student", pronunciation: "/ˈstjuːdnt/", definition: "[Noun]" },
-            ],
-            Weather: [
-                { term: "Sunny", pronunciation: "/ˈsʌni/", definition: "[Adjective]" },
-                { term: "Rainy", pronunciation: "/ˈreɪni/", definition: "[Adjective]" },
-                { term: "Cloudy", pronunciation: "/ˈklaʊdi/", definition: "[Adjective]" },
-            ],
-            Others: [
-                { term: "Random", pronunciation: "/ˈrændəm/", definition: "[Adjective]" },
-                { term: "Example", pronunciation: "/ɪɡˈzæmpəl/", definition: "[Noun]" },
-                { term: "Curious", pronunciation: "/ˈkjʊəriəs/", definition: "[Adjective]" },
-            ]
-        };
-
+        flashcards = JSON.parse('{{ flashcards | tojson | safe}}');
+        console.log('Flashcards data:', flashcards);
         function updateCategories() {
             categories = document.querySelectorAll('.flashcard-category:not(.add-more)');
             categories.forEach((category, index) => {
                 category.style.display = index >= currentCategoryIndex && index < currentCategoryIndex + 3 ? 'flex' : 'none';
             });
+        }
+
+        function toggleMenu() {
+            var menu = document.getElementById('dropdownMenu');
+            if (menu.style.display === 'block') {
+                menu.style.display = 'none';
+            } else {
+                menu.style.display = 'block';
+            }
+        }
+
+window.onclick = function(event) {
+    if (!event.target.matches('.student')) {
+        var dropdowns = document.getElementsByClassName("dropdown-menu");
+        for (var i = 0; i < dropdowns.length; i++) {
+            var openDropdown = dropdowns[i];
+            if (openDropdown.style.display === 'block') {
+                openDropdown.style.display = 'none';
+            }
+        }
+    }
+}
+
+        function viewAndRedirect(theme) {
+            viewFlashcards(selected_theme);
         }
 
         function navigate(direction) {
@@ -127,127 +185,262 @@
 
         function viewFlashcards(category) {
             currentCategory = category;
-            currentFlashcardIndex = 0;
+            document.getElementById('currentCategoryInput').value = category;
+            flashcards = JSON.parse('{{ flashcards | tojson | safe}}');
+            console.log(flashcards);
             document.querySelector('.flashcards-library').style.display = 'none';
             document.querySelector('.flashcards-view').style.display = 'block';
             document.querySelector('.add-category-section').style.display = 'none';
             document.getElementById('category-title').textContent = category;
-            updateFlashcardDisplay();
+            updateFlashcardDisplay(index);
         }
 
-        function updateFlashcardDisplay() {
-            const flashcard = flashcards[currentCategory][currentFlashcardIndex];
-            document.querySelector('.flashcard-term').textContent = flashcard.term;
-            document.querySelector('.flashcard-pronunciation').textContent = flashcard.pronunciation;
-            document.querySelector('.flashcard-definition').textContent = flashcard.definition;
-            document.querySelector('.flashcard-counter').textContent = `${currentFlashcardIndex + 1}/${flashcards[currentCategory].length}`;
+        function updateFlashcardDisplay(i) {
+            console.log(i);
+            if(flashcards[i][0] === currentCategory) {
+                document.querySelector('.flashcard-term').textContent = flashcards[i][1]; // Assuming WORD is at index 1
+                document.querySelector('.flashcard-pronunciation').textContent = flashcards[i][2]; // Assuming PRONUNCIATION is at index 2
+                document.querySelector('.flashcard-definition').textContent = flashcards[i][3]; // Assuming DEFINITION is at index 3
+                document.querySelector('.flashcard-meaning').textContent = flashcards[i][4]; // Assuming MEANING is at index 4
+            }
         }
 
         function navigateFlashcard(direction) {
-            currentFlashcardIndex = (currentFlashcardIndex + (direction === 'prev' ? -1 : 1) + flashcards[currentCategory].length) % flashcards[currentCategory].length;
-            updateFlashcardDisplay();
+            if (direction === 'prev') {
+                index = (index - 1 + flashcards.length) % flashcards.length;
+            } else {
+                index = (index + 1) % flashcards.length;
+             }
+            updateFlashcardDisplay(index);
+        }
+
+        function flipFlashcard(card) {
+            card.classList.toggle('flipped');
+        }
+
+        function startTest() {
+            currentFlashcardIndex = 0; // Initialize the flashcard index for the test
+            document.querySelector('.flashcards-view').style.display = 'none';
+            document.getElementById('testSection').style.display = 'block';
+            loadTestQuestion();
+        }
+
+        function loadTestQuestion() {
+            const flashcard = flashcards[currentFlashcardIndex];
+
+            // Update question display
+            document.getElementById('vocabulary').textContent = flashcard[1]; // Vocabulary
+            document.getElementById('pronunciation').textContent = flashcard[2]; // Pronunciation
+            document.getElementById('definition').textContent = flashcard[3]; // Definition
+
+            // Shuffle and assign options
+            const correctAnswer = flashcard[4]; // Meaning
+            const options = shuffleArray([
+                correctAnswer,
+                ...getIncorrectAnswers(correctAnswer)
+            ]);
+
+            document.getElementById('optionA').textContent = `A. ${options[0]}` ;
+            document.getElementById('optionB').textContent = `B. ${options[1]}`;
+            document.getElementById('optionC').textContent = `C. ${options[2]}`;
+            document.getElementById('optionD').textContent = `D. ${options[3]}`;
+
+            // Reset button states
+            resetAnswerButtons();
+        }
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function getIncorrectAnswers(correctAnswer) {
+            // Example implementation for fetching unique incorrect answers
+            const incorrectAnswers = flashcards
+                .filter(flashcard => flashcard[4] !== correctAnswer)
+                .map(flashcard => flashcard[4])
+                .slice(0, 3); // Get the first three incorrect meanings
+
+            // Fill with placeholders if less than 3 incorrect answers are available
+            while (incorrectAnswers.length < 3) {
+                incorrectAnswers.push(`Placeholder ${incorrectAnswers.length + 1}`);
+            }
+
+            return incorrectAnswers;
+        }
+
+        function checkAnswer(selectedOption) {
+            let correctCount = 0;
+            let incorrectCount = 0;
+            const selectedAnswerElement = document.getElementById(`option${selectedOption}`);
+            const selectedAnswer = selectedAnswerElement.textContent;
+            const correctAnswer = flashcards[currentFlashcardIndex][4]; // Correct meaning
+
+            if (selectedAnswer === correctAnswer) {
+                selectedAnswerElement.classList.add('correct');
+                correctCount++;
+            } else {
+                selectedAnswerElement.classList.add('incorrect');
+                incorrectCount++;
+                // Optionally, you can highlight the correct answer as well
+                const optionElements = document.querySelectorAll('.test-option');
+                optionElements.forEach(option => {
+                    if (option.textContent === correctAnswer) {
+                        option.classList.add('correct');
+                    }
+                });
+            }
+
+            // Disable all buttons to prevent further clicks
+            document.querySelectorAll('.test-option').forEach(button => {
+                button.disabled = true;
+            });
+            document.getElementById('correctCount').innerText = correctCount;
+            document.getElementById('incorrectCount').innerText = incorrectCount;
+
+            document.querySelectorAll('.test-option').forEach(button => {
+                button.disabled = true;
+            });
+            // Proceed to the next question after a delay
+            setTimeout(() => {
+                currentFlashcardIndex++;
+                if (currentFlashcardIndex < flashcards.length) {
+                    loadTestQuestion();
+                    resetAnswerButtons();
+                } else {
+                    alert('Test completed!');
+                    showLibrary();
+                }
+            }, 100); // Adjust the delay as needed
+        }
+
+        function resetAnswerButtons() {
+            document.querySelectorAll('.test-option').forEach(button => {
+                button.classList.remove('correct', 'incorrect');
+                button.disabled = false;
+            });
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                loadTestQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                loadTestQuestion();
+            } else {
+                alert('You have completed the quiz!');
+            }
+        }
+        function quitTest() {
+            if (confirm('Are you sure you want to quit the test?')) {
+                showLibrary();
+            }
         }
 
         function showLibrary() {
             document.querySelector('.flashcards-library').style.display = 'flex';
             document.querySelector('.flashcards-view').style.display = 'none';
             document.querySelector('.add-category-section').style.display = 'none';
+            document.getElementById('testSection').style.display = 'none';
             document.getElementById('category-title').textContent = 'Flashcards library';
         }
 
-        function editFlashcard() {
+        function editFlashcard(event) {
+            event.stopPropagation();
             const flashcard = flashcards[currentCategory][currentFlashcardIndex];
             const newTerm = prompt("Edit term:", flashcard.term);
             const newPronunciation = prompt("Edit pronunciation:", flashcard.pronunciation);
             const newDefinition = prompt("Edit definition:", flashcard.definition);
+            const newMeaning = prompt("Edit meaning:", flashcard.meaning);
 
-            if (newTerm && newPronunciation && newDefinition) {
-                flashcard.term = newTerm;
-                flashcard.pronunciation = newPronunciation;
-                flashcard.definition = newDefinition;
+            if (newTerm !== null && newPronunciation !== null && newDefinition !== null && newMeaning !== null) {
+                flashcards[currentCategory][currentFlashcardIndex] = { term: newTerm, pronunciation: newPronunciation, definition: newDefinition, meaning: newMeaning };
                 updateFlashcardDisplay();
             }
         }
 
         function addFlashcard() {
-            const newTerm = prompt("Enter new term:");
-            const newPronunciation = prompt("Enter new pronunciation:");
-            const newDefinition = prompt("Enter new definition:");
+            const term = prompt("Enter term:");
+            const pronunciation = prompt("Enter pronunciation:");
+            const definition = prompt("Enter definition:");
+            const meaning = prompt("Enter meaning:");
 
-            if (newTerm && newPronunciation && newDefinition) {
-                flashcards[currentCategory].push({ term: newTerm, pronunciation: newPronunciation, definition: newDefinition });
+            if (term && pronunciation && definition && meaning) {
+                flashcards[currentCategory].push({ term, pronunciation, definition, meaning });
                 updateFlashcardDisplay();
             }
         }
 
-        function showAddCategoryModal() {
-            document.querySelector('.flashcards-library').style.display = 'none';
-            document.querySelector('.flashcards-view').style.display = 'none';
-            document.querySelector('.add-category-section').style.display = 'block';
+        function toggleAddFlashcard() {
+            const addFlashcardSection = document.getElementById('addFlashcardSection');
+            addFlashcardSection.style.display = addFlashcardSection.style.display === 'none' ? 'block' : 'none';
         }
 
-        function closeModal() {
-            document.querySelector('.add-category-section').style.display = 'none';
+        function showAddCategoryModal() {
+            document.querySelector('.flashcards-library').style.display = 'none';
+            document.querySelector('.add-category-section').style.display = 'block';
+            document.querySelector('.flashcards-view').style.display = 'none';
+            document.getElementById('category-title').textContent = 'Add Category';
         }
 
         function addFlashcardInput() {
             const flashcardsContainer = document.getElementById('flashcardsContainer');
-            const flashcardCount = flashcardsContainer.getElementsByClassName('flashcard-row').length + 1;
-            const flashcardHTML = `
+            const flashcardCount = flashcardsContainer.children.length / 2 + 1;
+            const flashcardGroup = document.createElement('div');
+            flashcardGroup.classList.add('form-group', 'flashcard-row');
+
+            flashcardGroup.innerHTML = `
                 <h2>Flashcard ${flashcardCount}:</h2>
-                <div class="form-group flashcard-row">
-                    <input type="text" id="Vocabulary" placeholder="Vocabulary">
-                    <input type="text" id="Pronunciation" placeholder="Pronunciation">
-                    <input type="text" id="Definition" placeholder="Definition">
-                    <input type="text" id="Meaning" placeholder="Meaning">
-                    <button type="button" class="remove-flashcard" onclick="removeFlashcardInput(this)">x</button>
-                </div>
+                <input type="text" placeholder="Vocabulary">
+                <input type="text" placeholder="Pronunciation">
+                <input type="text" placeholder="Definition">
+                <input type="text" placeholder="Meaning">
+                <button type="button" class="remove-flashcard" onclick="removeFlashcardInput(this)">x</button>
             `;
-            document.querySelector('.add-flashcard').insertAdjacentHTML('afterend', flashcardHTML);
+
+            flashcardsContainer.appendChild(flashcardGroup);
         }
 
         function removeFlashcardInput(button) {
-            const flashcardsContainer = document.getElementById('flashcardsContainer');
-            flashcardsContainer.removeChild(button.parentElement.previousElementSibling);
-            flashcardsContainer.removeChild(button.parentElement);
-            updateFlashcardTitles();
-        }
-
-        function updateFlashcardTitles() {
-            const flashcardRows = document.querySelectorAll('.flashcard-row');
-            flashcardRows.forEach((row, index) => {
-                row.previousElementSibling.textContent = `Flashcard ${index + 1}:`;
-            });
+            button.parentElement.remove();
         }
 
         function submitNewCategory() {
-            const newCategory = document.getElementById('newCategory').value.trim();
-            const flashcardInputs = document.querySelectorAll('#flashcardsContainer .flashcard-row');
-            const newFlashcards = Array.from(flashcardInputs).map(row => {
-                const inputs = row.getElementsByTagName('input');
-                return {
-                    term: inputs[0].value.trim(),
-                    pronunciation: inputs[1].value.trim(),
-                    definition: inputs[2].value.trim()
-                };
+            const category = document.getElementById('newCategory').value.trim();
+            const flashcardGroups = document.querySelectorAll('#flashcardsContainer .flashcard-row');
+            const newFlashcards = [];
+
+            flashcardGroups.forEach(group => {
+                const inputs = group.querySelectorAll('input');
+                const [term, pronunciation, definition, meaning] = Array.from(inputs).map(input => input.value.trim());
+
+                if (term && pronunciation && definition && meaning) {
+                    newFlashcards.push({ term, pronunciation, definition, meaning });
+                }
             });
 
-            if (newCategory && newFlashcards.length > 0) {
-                flashcards[newCategory] = newFlashcards;
-                closeModal();
+            if (category && newFlashcards.length > 0) {
+                flashcards[category] = newFlashcards;
                 const newCategoryElement = document.createElement('div');
                 newCategoryElement.classList.add('flashcard-category');
-                newCategoryElement.textContent = newCategory;
-                newCategoryElement.onclick = () => viewFlashcards(newCategory);
-                const addMoreElement = document.querySelector('.flashcard-category.add-more');
-                document.querySelector('.flashcards-library').insertBefore(newCategoryElement, addMoreElement);
-                categories = document.querySelectorAll('.flashcard-category:not(.add-more)');
+                newCategoryElement.textContent = category;
+                newCategoryElement.onclick = () => viewFlashcards(category);
+                document.querySelector('.add-more').before(newCategoryElement);
                 updateCategories();
+                showLibrary();
             } else {
-                alert("Please enter a category name and at least one flashcard.");
+                alert("Please fill in all fields.");
             }
         }
 
+        // Initial display update
         updateCategories();
     </script>
 </body>

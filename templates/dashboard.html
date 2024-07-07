@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Bilinguo</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/insight.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/insight_student.css') }}">
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -13,21 +13,29 @@
         <div class="logo-container">
             <a href="{{ url_for('dashboard') }}">
                 <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bilinguo Logo" class="logo">
-            </a>   
+            </a>
             <div class="notice-container">
                 <img src="{{ url_for('static', filename='images/notice.png') }}" alt="Notice Icon" class="notice" id="notice-icon">
-                <span class="badge" id="notification-count">0</span>
-                <div class="notifications-dropdown" id="notifications-dropdown"></div>
+                <div class="badge" id="notification-count">0</div>
+                <div class="notifications-dropdown" id="notifications-dropdown">
+                </div>
             </div>
-        </div>
+        </div>  
         <nav>
             <ul>
                 <li><a href="{{ url_for('dashboard') }}">Home page</a></li>
                 <li><a href="{{ url_for('flashcards') }}">Flashcards</a></li>
                 <li><a href="{{ url_for('dictionary') }}">Dictionary</a></li>
-                <li><a href="{{ url_for('mocktests') }}">Mock test</a></li>
+                <li><a href="{{ url_for('mocktest') }}">Mock test</a></li>
             </ul>
         </nav>
+        <div class="student-menu">
+            <img src="{{ url_for('static', filename='images/student.png') }}" alt="Student Icon" class="student" onclick="toggleMenu()">
+            <div class="dropdown-menu" id="dropdownMenu">
+                <a href="{{ url_for('profile') }}">Profile</a>
+                <a href="{{ url_for('logout') }}">Logout</a>
+            </div>
+        </div>
     </header>
     <main>
         <div class="dashboard">
@@ -72,28 +80,28 @@
         });
 
         function fetchNotifications() {
-            console.log("Fetching notifications");
-            fetch('/get_notifications')
-                .then(response => response.json())
-                .then(notifications => {
-                    console.log("Notifications received", notifications);
-                    const dropdown = document.getElementById('notifications-dropdown');
-                    dropdown.innerHTML = '';  // Clear previous notifications
-
-                    notifications.forEach(notification => {
-                        const notificationItem = document.createElement('a');
-                        notificationItem.href = `/notification/${notification.id}`;
-                        notificationItem.textContent = notification.text;
-                        notificationItem.addEventListener('click', function() {
-                            markAsRead(notification.id);
-                        });
-                        dropdown.appendChild(notificationItem);
+        console.log("Fetching notifications");
+        fetch('/get_notifications')
+            .then(response => response.json())
+            .then(notifications => {
+                console.log("Notifications received", notifications);
+                const dropdown = document.getElementById('notifications-dropdown');
+                dropdown.innerHTML = '';  // Clear previous notifications
+                notifications.forEach(notification => {
+                    const notificationItem = document.createElement('a');
+                    notificationItem.href = `/notification/${notification.id}`;
+                    notificationItem.textContent = notification.title; // Thay đổi từ notification.title sang notification.text
+                    notificationItem.addEventListener('click', function() {
+                        markAsRead(notification.id);
                     });
+                    dropdown.appendChild(notificationItem);
                 });
+            });
         }
 
+
         function markAsRead(notificationId) {
-            fetch(`/mark_as_read/${notificationId}`, {
+            fetch( `/mark_as_read/${notificationId}`, {
                 method: 'POST'
             })
             .then(response => response.json())
@@ -144,7 +152,14 @@
                 }
             }
         });
-
+        function toggleMenu() {
+            var menu = document.getElementById('dropdownMenu');
+            if (menu.style.display === 'block') {
+                menu.style.display = 'none';
+            } else {
+                menu.style.display = 'block';
+            }
+            }
         function updateTime() {
             const now = new Date();
             const date = now.toLocaleDateString('en-GB');

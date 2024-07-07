@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create notification - Bilinguo</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/insight.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/insight03.css') }}">
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -78,22 +78,29 @@
 <body>
     <header>
         <div class="logo-container">
+            <a href="{{ url_for('admin_dashboard') }}">
             <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bilinguo Logo" class="logo">
+            </a>
         </div>
         <nav>
             <ul>
                 <li><a href="{{ url_for('admin_dashboard') }}">Home page</a></li>
                 <li><a href="{{ url_for('admin_view_account') }}">View account</a></li>
                 <li><a href="{{ url_for('admin_report') }}">Report</a></li>
-                <li><a href="{{ url_for('admin_authorize_teacher_account') }}">Create account</a></li>
+                <li><a href="{{ url_for('admin_authorize_teacher_account') }}">Authorize account</a></li>
                 <li><a href="{{ url_for('admin_create_notification') }}">Create notification</a></li>
             </ul>
         </nav>
-        <img src="{{ url_for('static', filename='images/admin.png') }}" alt="Admin Icon" class="admin">
+        <div class="student-menu">
+            <img src="{{ url_for('static', filename='images/admin.png') }}" alt="Student Icon" class="student" onclick="toggleMenu()">
+            <div class="dropdown-menu" id="dropdownMenu">
+                <a href="{{ url_for('admin_profile') }}">Profile</a>
+                <a href="{{ url_for('logout') }}">Logout</a>
+            </div>
+        </div>
     </header>
     <div class="container">
         <h1>Create Notification</h1>
-
         <form action="{{ url_for('admin_create_notification') }}" method="post">
             <label for="title">Title</label>
             <input type="text" id="title" name="title" required>
@@ -123,5 +130,15 @@
             }, 2000);
         </script>
     </div>
+    <script>
+        function toggleMenu() {
+            var menu = document.getElementById('dropdownMenu');
+            if (menu.style.display === 'block') {
+                menu.style.display = 'none';
+            } else {
+                menu.style.display = 'block';
+            }
+        }
+    </script>
 </body>
 </html>

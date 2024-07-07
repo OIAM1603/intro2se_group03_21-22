@@ -9,28 +9,25 @@
 </head>
 <body>
     <header>
-        <a href="{{ url_for('index') }}">
-            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bilinguo Logo" class="logo">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bilinguo Logo" class="logo">
         </a></li>
         <nav>
             <ul>
-                <li><a href="{{ url_for('signin') }}">Sign in</a></li>
-                <li><a href="{{ url_for('signup') }}">Sign up</a></li>
+                <li><a href="{{ url_for('teacher_signin') }}">Sign in</a></li>
             </ul>
         </nav>
     </header>
     <main class="sign-in-main">
         <section class="sign-in-section">
             <h1>WELCOME TO BILINGUO</h1>
-            <form action="{{ url_for('signin') }}" method="post">
+            <form action="{{ url_for('teacher_signin') }}" method="post">
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email" required>
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" required>
-                <a href="#" class="forgot-password">Forgot password?</a>
                 <button type="submit" class="sign-in-button">SIGN IN</button>
             </form>
-            <p>Don’t have an account? <a href="{{ url_for('signup') }}">Sign up</a></p>
+            <p>Don’t have an account? Contact admin to authorize teacher account!</p>
         </section>
     </main>
 </body>

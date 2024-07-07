@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Bilinguo</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/insight_student.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/insight.css') }}">
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -32,23 +32,18 @@
             </div>
         </div>
     </header>
-    <main class="dictionary-main">
-        <section class="dictionary-section">
-            <h1>Dictionary</h1>
-            <form action="{{ url_for('dictionary') }}" method="post" class="small-yellow-box">
-                <label for="word">Enter a word:</label>
-                <input type="text" id="word" name="word" required>
-                <button type="submit" class="dictionary-button">Search</button>
-            </form>
-            {% if definition %}
-                <div class="definition-result">
-                    <h2>Definition:</h2>
-                    <pre>{{ definition }}</pre>
-                </div>
-            {% endif %}
+    <main>
+        <section class="profile">
+            <h1>{{ user.name }}</h1>
+            <p>Email: {{ user.email }}</p>
+            <h2>Enrolled Courses</h2>
+            <ul>
+                {% for course in user.enrolled_courses %}
+                <li>{{ course }}</li>
+                {% endfor %}
+            </ul>
         </section>
     </main>
-    
     <script>
         function toggleMenu() {
             var menu = document.getElementById('dropdownMenu');

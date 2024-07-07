@@ -31,6 +31,30 @@ header {
 .student {
     height: 40px;
 }
+
+.student-menu {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    background-color: white;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.dropdown-menu a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-menu a:hover {
+    background-color: #f1f1f1;
+}
 .admin {
     height: 40px;
 }
@@ -248,7 +272,7 @@ ul {
     display: none;
     position: absolute;
     right: 0;
-    top: 100%;
+    top: 10%;
     background-color: white;
     border: 1px solid #ddd;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);

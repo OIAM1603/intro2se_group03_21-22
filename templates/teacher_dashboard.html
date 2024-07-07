@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Bilinguo</title>
+    <title>Teacher Dashboard - Bilinguo</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/insight.css') }}">
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -11,23 +11,22 @@
 <body>
     <header>
         <div class="logo-container">
-            <a href="{{ url_for('admin_dashboard') }}">
-            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bilinguo Logo" class="logo">
+            <a href="{{ url_for('teacher_dashboard') }}">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bilinguo Logo" class="logo">
             </a>
         </div>
         <nav>
             <ul>
-                <li><a href="{{ url_for('admin_dashboard') }}">Home page</a></li>
-                <li><a href="{{ url_for('admin_view_account') }}">View account</a></li>
-                <li><a href="{{ url_for('admin_report') }}">Report</a></li>
-                <li><a href="{{ url_for('admin_authorize_teacher_account') }}">Authorize account</a></li>
-                <li><a href="{{ url_for('admin_create_notification') }}">Create notification</a></li>
+                <li><a href="{{ url_for('teacher_dashboard') }}">Home page</a></li>
+                <li><a href="{{ url_for('create_test') }}">Create mock test</a></li>
+                <li><a href="{{ url_for('assign_test') }}">Assign Test</a></li>
+                
             </ul>
         </nav>
         <div class="student-menu">
-            <img src="{{ url_for('static', filename='images/admin.png') }}" alt="Student Icon" class="student" onclick="toggleMenu()">
+            <img src="{{ url_for('static', filename='images/teacher.png') }}" alt="Student Icon" class="student" onclick="toggleMenu()">
             <div class="dropdown-menu" id="dropdownMenu">
-                <a href="{{ url_for('admin_profile') }}">Profile</a>
+                <a href="{{ url_for('teacher_profile') }}">Profile</a>
                 <a href="{{ url_for('logout') }}">Logout</a>
             </div>
         </div>
@@ -46,7 +45,7 @@
             <div class="activities">
                 <h2>Recent activities</h2>
                 <ul>
-                    {% for activity in recent_activities %}
+                    {% for activity in activities %}
                         <li>{{ activity['activity_description'] }}</li>
                     {% endfor %}
                 </ul>
@@ -79,6 +78,8 @@
                     }
                 }
             });
+            
+
 
             function updateTime() {
                 const now = new Date();
@@ -159,17 +160,15 @@
             }
 
             createCalendar(currentYear, currentMonth);
-        </script>
-    </main>
-    <script>
-        function toggleMenu() {
+            function toggleMenu() {
             var menu = document.getElementById('dropdownMenu');
             if (menu.style.display === 'block') {
                 menu.style.display = 'none';
             } else {
                 menu.style.display = 'block';
             }
-        }
-    </script>
+            }
+        </script>
+    </main>
 </body>
 </html>

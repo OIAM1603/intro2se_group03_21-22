@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Authorize teacher account - Bilinguo</title>
+    <title>Dashboard - Bilinguo</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/insight.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <header>
@@ -31,32 +31,29 @@
                 <a href="{{ url_for('logout') }}">Logout</a>
             </div>
         </div>
-    </header>
-    <main class="sign-up-main">
-        <div class="sign-up-section">
-            <h1>AUTHORIZE TEACHER ACCOUNT</h1>
-            <form action="{{ url_for('admin_authorize_teacher_account') }}" method="post">
-                <label for="name">Name *</label>
-                <input type="text" id="name" name="name" required>
-                <label for="email">Email *</label>
-                <div class="input-group">
-                    <input type="email" id="email" name="email" required>
-                    <input type="text" id="phone" name="phone" placeholder="Phone Number">
-                </div>
-                <label for="password">Password *</label>
-                <input type="password" id="password" name="password" required>
-                <label for="gender">Gender</label>
-                <select id="gender" name="gender">
-                    <option value="female">Female</option>
-                    <option value="male">Male</option>
-                </select>
-                <button type="submit" class="sign-up-button">SIGN UP</button>
-            </form>
-            {% if message %}
-                <p>{{ message }}</p>
-            {% endif %}
-        </div>
+    </header> 
+    <main>
+        <section class="profile">
+            <h1>{{ user.name }}</h1>
+            <p>Email: {{ user.email }}</p>
+            <h2>Enrolled Courses</h2>
+            <ul>
+                {% for course in user.enrolled_courses %}
+                <li>{{ course }}</li>
+                {% endfor %}
+            </ul>
+        </section>
     </main>
+    <script>
+        function toggleMenu() {
+            var menu = document.getElementById('dropdownMenu');
+            if (menu.style.display === 'block') {
+                menu.style.display = 'none';
+            } else {
+                menu.style.display = 'block';
+            }
+        }
+    </script>
     <script>
         function toggleMenu() {
             var menu = document.getElementById('dropdownMenu');
