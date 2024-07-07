@@ -1,0 +1,3 @@
+File: rup_sad
+Update: - Correct the mistaken content within the back-end section.
+	- Adjust the symbols for the relationships in the class diagram to adhere 	to the UML standard.

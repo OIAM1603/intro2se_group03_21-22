@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mock Tests</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/insight_student.css') }}">
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <a href="{{ url_for('dashboard') }}">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bilinguo Logo" class="logo">
+
+            </a>
+            <div class="notice-container">
+                <img src="{{ url_for('static', filename='images/notice.png') }}" alt="Notice Icon" class="notice" id="notice-icon">
+                <span class="badge" id="notification-count">0</span>
+                <div class="notifications-dropdown" id="notifications-dropdown">
+                    <!-- Nội dung của dropdown notifications -->
+                    <a href="#">Notification 1</a>
+                    <a href="#">Notification 2</a>
+                    <a href="#">Notification 3</a>
+                </div>
+            </div>
+        </div>  
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('dashboard') }}">Home page</a></li>
+                <li><a href="{{ url_for('flashcards') }}">Flashcards</a></li>
+                <li><a href="{{ url_for('dictionary') }}">Dictionary</a></li>
+                <li><a href="{{ url_for('mocktest') }}">Mock test</a></li>
+            </ul>
+        </nav>
+        <div class="student-menu">
+            <img src="{{ url_for('static', filename='images/student.png') }}" alt="Student Icon" class="student" onclick="toggleMenu()">
+            <div class="dropdown-menu" id="dropdownMenu">
+                <a href="{{ url_for('profile') }}">Profile</a>
+                <a href="{{ url_for('logout') }}">Logout</a>
+            </div>
+        </div>
+    </header>
+    <h1>Mock Tests</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Test Name</th>
+                <th>Assigned Time</th>
+                <th>Deadline</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for test in tests %}
+            <tr>
+                <td>{{ test.test_name }}</td>
+                <td>{{ test.assigned_time }}</td>
+                <td>{{ test.deadline }}</td>
+                <td>{{ test.status }}</td>
+                <td>
+                    {% if test.status == "Pending" %}
+                        <a href="{{ url_for('take_test', test_id=test.test_id) }}">Take Test</a>
+                    {% elif test.status == "Completed" %}
+                        <span>Completed</span>
+                    {% else %}
+                        <span>Test overdue</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    <script>
+        function toggleMenu() {
+            var menu = document.getElementById('dropdownMenu');
+            if (menu.style.display === 'block') {
+                menu.style.display = 'none';
+            } else {
+                menu.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>

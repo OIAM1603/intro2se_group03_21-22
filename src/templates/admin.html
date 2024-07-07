@@ -11,83 +11,149 @@
 <body>
     <header>
         <div class="logo-container">
-            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bilinguo Logo" class="logo">
+            <a href="{{ url_for('admin_dashboard') }}">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bilinguo Logo" class="logo">
+            </a>
         </div>
         <nav>
             <ul>
                 <li><a href="{{ url_for('admin_dashboard') }}">Home page</a></li>
                 <li><a href="{{ url_for('admin_view_account') }}">View account</a></li>
                 <li><a href="{{ url_for('admin_report') }}">Report</a></li>
-                <li><a href="{{ url_for('admin_create_account') }}">Create account</a></li>
+                <li><a href="{{ url_for('admin_authorize_teacher_account') }}">Create account</a></li>
+                <li><a href="{{ url_for('admin_create_notification') }}">Create notification</a></li>
             </ul>
         </nav>
         <img src="{{ url_for('static', filename='images/admin.png') }}" alt="Admin Icon" class="admin">
     </header>
+    
     <main>
-        <section class="dashboard">
-            <h1>Admin Dashboard</h1>
-            <p id="admin-name">Admin: {{ admin_name }}</p>
+        <div class="dashboard">
+            <h1>{{ admin_name }}</h1>
             <p id="current-time"></p>
-            
             <div class="statistics">
                 <h2>Number of visits</h2>
                 <div class="chart">
                     <canvas id="visitChart"></canvas>
                 </div>
             </div>
-            
             <div class="activities">
                 <h2>Recent activities</h2>
                 <ul>
-                    <!-- Replace with dynamic activities -->
-                    <li>User X signed up</li>
-                    <li>User Y completed a test</li>
-                    <li>Admin created a new announcement</li>
+                    {% for activity in recent_activities %}
+                        <li>{{ activity['activity_description'] }}</li>
+                    {% endfor %}
                 </ul>
             </div>
-            
-            <div class="notifications">
-                <h2>Create Notification</h2>
-                <form action="{{ url_for('admin_create_notification') }}" method="post" enctype="multipart/form-data">
-                    <textarea name="notification_text" rows="4" placeholder="Enter your notification"></textarea>
-                    <input type="file" name="attachment">
-                    <button type="submit">Send</button>
-                </form>
+            <div class="calendar">
+                <h2>Calendar</h2>
+                <div id="calendar"></div>
             </div>
-        </section>
-    </main>
-    <script>
-        const ctx = document.getElementById('visitChart').getContext('2d');
-        const visitChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                datasets: [{
-                    label: 'Number of visits',
-                    data: [2, 7, 15, 3, 5, 1, 0],
-                    backgroundColor: 'rgba(165, 100, 40, 0.😎',
-                    borderColor: 'rgba(165, 100, 40, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
+        </div>
+        <script>
+            const ctx = document.getElementById('visitChart').getContext('2d');
+            const visitCounts = {{ visit_counts | tojson }};
+            const visitChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                    datasets: [{
+                        label: 'Number of visits',
+                        data: [visitCounts['0'], visitCounts['1'], visitCounts['2'], visitCounts['3'], visitCounts['4'], visitCounts['5'], visitCounts['6']],
+                        backgroundColor: 'rgba(165, 100, 40, 0.8)',
+                        borderColor: 'rgba(165, 100, 40, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
                     }
                 }
+            });
+
+            function updateTime() {
+                const now = new Date();
+                const date = now.toLocaleDateString('en-GB');
+                const time = now.toLocaleTimeString('en-GB');
+                document.getElementById('current-time').textContent = `${time}, ${date}`;
             }
-        });
 
-        function updateTime() {
-            const now = new Date();
-            const date = now.toLocaleDateString('en-GB');
-            const time = now.toLocaleTimeString('en-GB');
-            document.getElementById('current-time').textContent = '${time}, ${date}';
-        }
+            setInterval(updateTime, 1000);
+            updateTime();
 
-        setInterval(updateTime, 1000);
-        updateTime();  // Initial call to set the time immediately
-    </script>
+            function createCalendar(year, month) {
+                const calendar = document.getElementById('calendar');
+                const daysOfWeek = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+                const monthNames = [
+                    'January', 'February', 'March', 'April', 'May', 'June',
+                    'July', 'August', 'September', 'October', 'November', 'December'
+                ];
+                const now = new Date();
+
+                calendar.innerHTML = '';
+
+                const header = document.createElement('div');
+                header.classList.add('calendar-header');
+                header.innerHTML = `
+                    <button onclick="changeMonth(-1)"><<</button>
+                    <span>${monthNames[month]} ${year}</span>
+                    <button onclick="changeMonth(1)">>></button>
+                `;
+                calendar.appendChild(header);
+
+                const dayRow = document.createElement('div');
+                dayRow.classList.add('calendar-days');
+                daysOfWeek.forEach(day => {
+                    const dayCell = document.createElement('div');
+                    dayCell.classList.add('calendar-day');
+                    dayCell.textContent = day;
+                    dayRow.appendChild(dayCell);
+                });
+                calendar.appendChild(dayRow);
+
+                const firstDay = new Date(year, month, 1).getDay();
+                const lastDate = new Date(year, month + 1, 0).getDate();
+
+                const dateRow = document.createElement('div');
+                dateRow.classList.add('calendar-dates');
+                for (let i = 0; i < firstDay; i++) {
+                    const emptyCell = document.createElement('div');
+                    emptyCell.classList.add('calendar-date', 'empty');
+                    dateRow.appendChild(emptyCell);
+                }
+
+                for (let date = 1; date <= lastDate; date++) {
+                    const dateCell = document.createElement('div');
+                    dateCell.classList.add('calendar-date');
+                    dateCell.textContent = date;
+                    if (year === now.getFullYear() && month === now.getMonth() && date === now.getDate()) {
+                        dateCell.classList.add('highlight');
+                    }
+                    dateRow.appendChild(dateCell);
+                }
+                calendar.appendChild(dateRow);
+            }
+
+            let currentYear = new Date().getFullYear();
+            let currentMonth = new Date().getMonth();
+
+            function changeMonth(delta) {
+                currentMonth += delta;
+                if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear -= 1;
+                } else if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear += 1;
+                }
+                createCalendar(currentYear, currentMonth);
+            }
+
+            createCalendar(currentYear, currentMonth);
+        </script>
+    </main>
 </body>
 </html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Bilinguo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/insight.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <a href="{{ url_for('admin_dashboard') }}">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bilinguo Logo" class="logo">
+            </a>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('admin_dashboard') }}">Home page</a></li>
+                <li><a href="{{ url_for('admin_view_account') }}">View account</a></li>
+                <li><a href="{{ url_for('admin_report') }}">Report</a></li>
+                <li><a href="{{ url_for('admin_authorize_teacher_account') }}">Authorize account</a></li>
+                <li><a href="{{ url_for('admin_create_notification') }}">Create notification</a></li>
+            </ul>
+        </nav>
+        <div class="student-menu">
+            <img src="{{ url_for('static', filename='images/admin.png') }}" alt="Student Icon" class="student" onclick="toggleMenu()">
+            <div class="dropdown-menu" id="dropdownMenu">
+                <a href="{{ url_for('admin_profile') }}">Profile</a>
+                <a href="{{ url_for('logout') }}">Logout</a>
+            </div>
+        </div>
+    </header> 
+    <main>
+        <section class="profile">
+            <h1>{{ user.name }}</h1>
+            <p>Email: {{ user.email }}</p>
+            <h2>Enrolled Courses</h2>
+            <ul>
+                {% for course in user.enrolled_courses %}
+                <li>{{ course }}</li>
+                {% endfor %}
+            </ul>
+        </section>
+    </main>
+    <script>
+        function toggleMenu() {
+            var menu = document.getElementById('dropdownMenu');
+            if (menu.style.display === 'block') {
+                menu.style.display = 'none';
+            } else {
+                menu.style.display = 'block';
+            }
+        }
+    </script>
+    <script>
+        function toggleMenu() {
+            var menu = document.getElementById('dropdownMenu');
+            if (menu.style.display === 'block') {
+                menu.style.display = 'none';
+            } else {
+                menu.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>

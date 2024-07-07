@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Take Test</title>
+</head>
+<body>
+    <h1>Take Test</h1>
+    <form method="post">
+        {% for question in questions %}
+        <div>
+            <p>{{ question.question }}</p>
+            <label><input type="radio" name="answers[{{ loop.index0 }}]" value="A"> {{ question.option_A }}</label><br>
+            <label><input type="radio" name="answers[{{ loop.index0 }}]" value="B"> {{ question.option_B }}</label><br>
+            <label><input type="radio" name="answers[{{ loop.index0 }}]" value="C"> {{ question.option_C }}</label><br>
+            <label><input type="radio" name="answers[{{ loop.index0 }}]" value="D"> {{ question.option_D }}</label><br>
+        </div>
+        {% endfor %}
+        <input type="hidden" name="test_id" value="{{ test_id }}">
+        <button type="submit">Submit</button>
+    </form>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+</body>
+</html>

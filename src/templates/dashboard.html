@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Bilinguo</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/insight.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/insight_student.css') }}">
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -14,14 +14,19 @@
             <a href="{{ url_for('dashboard') }}">
                 <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bilinguo Logo" class="logo">
             </a>
-            <img src="{{ url_for('static', filename='images/notice.png') }}" alt="Notice Icon" class="notice">
-        </div>
+            <div class="notice-container">
+                <img src="{{ url_for('static', filename='images/notice.png') }}" alt="Notice Icon" class="notice" id="notice-icon">
+                <div class="badge" id="notification-count">0</div>
+                <div class="notifications-dropdown" id="notifications-dropdown">
+                </div>
+            </div>
+        </div>  
         <nav>
             <ul>
-                <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                <li><a href="{{ url_for('dashboard') }}">Home page</a></li>
                 <li><a href="{{ url_for('flashcards') }}">Flashcards</a></li>
                 <li><a href="{{ url_for('dictionary') }}">Dictionary</a></li>
-                <li><a href="#">Mock test</a></li>
+                <li><a href="{{ url_for('mocktest') }}">Mock test</a></li>
             </ul>
         </nav>
         <div class="student-menu">
@@ -33,7 +38,7 @@
         </div>
     </header>
     <main>
-        <section class="dashboard">
+        <div class="dashboard">
             <h1>Name Student</h1>
             <p id="current-time"></p>
             <div class="statistics">
@@ -58,6 +63,74 @@
         </section>
     </main>
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("Document loaded");
+            updateNotificationCount();
+            createCalendar(currentYear, currentMonth);
+        });
+
+        document.getElementById('notice-icon').addEventListener('click', function() {
+            console.log("Notice icon clicked");
+            const dropdown = document.getElementById('notifications-dropdown');
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+
+            if (dropdown.style.display === 'block') {
+                fetchNotifications();
+            }
+        });
+
+        function fetchNotifications() {
+        console.log("Fetching notifications");
+        fetch('/get_notifications')
+            .then(response => response.json())
+            .then(notifications => {
+                console.log("Notifications received", notifications);
+                const dropdown = document.getElementById('notifications-dropdown');
+                dropdown.innerHTML = '';  // Clear previous notifications
+                notifications.forEach(notification => {
+                    const notificationItem = document.createElement('a');
+                    notificationItem.href = `/notification/${notification.id}`;
+                    notificationItem.textContent = notification.title; // Thay đổi từ notification.title sang notification.text
+                    notificationItem.addEventListener('click', function() {
+                        markAsRead(notification.id);
+                    });
+                    dropdown.appendChild(notificationItem);
+                });
+            });
+        }
+
+
+        function markAsRead(notificationId) {
+            fetch( `/mark_as_read/${notificationId}`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Notification marked as read", data);
+                updateNotificationCount();
+                fetchNotifications();
+            });
+        }
+
+        function updateNotificationCount() {
+            console.log("Updating notification count");
+            fetch('/notifications/unread_count')
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Unread count", data);
+                    const countElement = document.getElementById('notification-count');
+                    countElement.textContent = data.count;
+                    countElement.style.display = data.count > 0 ? 'inline' : 'none';
+                });
+        }
+
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('notifications-dropdown');
+            if (!event.target.closest('.notice-container')) {
+                dropdown.style.display = 'none';
+            }
+        });
+
         const ctx = document.getElementById('visitChart').getContext('2d');
         const visitChart = new Chart(ctx, {
             type: 'bar',
@@ -79,7 +152,6 @@
                 }
             }
         });
-
         function toggleMenu() {
             var menu = document.getElementById('dropdownMenu');
             if (menu.style.display === 'block') {
@@ -87,8 +159,7 @@
             } else {
                 menu.style.display = 'block';
             }
-        }
-        
+            }
         function updateTime() {
             const now = new Date();
             const date = now.toLocaleDateString('en-GB');
