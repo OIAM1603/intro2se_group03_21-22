@@ -1,5 +1,6 @@
 # intro2se_group03_21-22
 Google meet: https://meet.google.com/kqv-bqsd-kxk
+Google drive: https://drive.google.com/drive/folders/1nziJWtDKn7axn95nKpUUBXSZ-n7i51h3
 
 Schedule: 
 First Meeting
